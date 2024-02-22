@@ -19,8 +19,28 @@ const getJobs = async (req, res) => {
             error: error.message
         });
     }
-};  
+};
 
+// get job by id
+const getJobById = async (req, res) => {
+    try {
+        const job = await Job.findById(req.params.id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Job retrieved successfully.',
+            data: {
+                job
+            }
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to retrieve job.',
+            error: error.message
+        });
+    }
+};
 
 // create job
 const createJob = async (req, res) => {
@@ -67,7 +87,7 @@ const createJob = async (req, res) => {
             success: true,
             message: 'Job created successfully.',
             data: {
-                
+                job: newJob
             }
         });
     } catch (error) {
@@ -79,7 +99,13 @@ const createJob = async (req, res) => {
     }
 };
 
+// update job
+// delete job
+
+
+
 module.exports = {
     getJobs,
+    getJobById,
     createJob
 };
