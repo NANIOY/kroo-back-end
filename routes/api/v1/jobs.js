@@ -11,4 +11,8 @@ router.get('/:id', jobController.getJobById);
 // POST new shoe order
 router.post('/', jobController.createJob);
 
+// PUT & PATCH shoe order by ID
+router.put('/:id', jobController.updateJob);
+router.patch('/:id', jobController.updateJob);
+
 module.exports = router;
