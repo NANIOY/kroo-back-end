@@ -1,5 +1,6 @@
 const User = require('../../../models/api/v1/User');
 
+// create new user
 const createUser = async (req, res) => {
     try {
         const { username, email, password, role } = req.body;
@@ -25,6 +26,8 @@ const createUser = async (req, res) => {
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
+
+// 
 
 module.exports = {
     createUser,
