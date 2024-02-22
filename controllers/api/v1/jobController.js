@@ -105,10 +105,10 @@ const updateJob = async (req, res) => {
         const jobId = req.params.id;
         const updateData = req.body;
 
-        // Find the job by ID and update it
+        // find job by ID and update it
         const updatedJob = await Job.findByIdAndUpdate(jobId, updateData, {
-            new: true, // Return the updated document
-            runValidators: true, // Validate the update operation against the schema
+            new: true,
+            runValidators: true,
         });
 
         if (!updatedJob) {
@@ -135,12 +135,40 @@ const updateJob = async (req, res) => {
 };
 
 // delete job
+const deleteJob = async (req, res) => {
+    try {
+        const jobId = req.params.id;
 
+        // Find the job by ID and delete it
+        const deletedJob = await Job.findByIdAndDelete(jobId);
 
+        if (!deletedJob) {
+            return res.status(404).json({
+                success: false,
+                message: 'Job not found.',
+            });
+        }
+
+        res.status(200).json({
+            success: true,
+            message: 'Job deleted successfully.',
+            data: {
+                job: deletedJob,
+            },
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: 'Failed to delete job.',
+            error: error.message,
+        });
+    }
+};
 
 module.exports = {
     getJobs,
     getJobById,
     createJob,
-    updateJob
+    updateJob,
+    deleteJob
 };

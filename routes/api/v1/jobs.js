@@ -15,4 +15,7 @@ router.post('/', jobController.createJob);
 router.put('/:id', jobController.updateJob);
 router.patch('/:id', jobController.updateJob);
 
+// DELETE shoe order by ID
+router.delete('/:id', jobController.deleteJob);
+
 module.exports = router;
