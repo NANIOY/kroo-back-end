@@ -30,7 +30,7 @@ const JobSchema = new Schema({
         type: Array,
         required: true
     },
-    function : {
+    jobFunction : {
         type: String,
         required: true
     },
