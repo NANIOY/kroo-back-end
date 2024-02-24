@@ -17,26 +17,21 @@ const CrewDataSchema = new Schema({
         workRadius: Number,
         bio: String
     },
-    portfolioWork: [{
-        title: String,
-        type: {
-            type: String,
-            enum: [
-                'Short Film',
-                'Feature Film',
-                'Documentary',
-                'Music Video',
-                'Commercial',
-                'Animation',
-                'Web Series',
-                'TV Show',
-                'Corporate Video',
-                'Experimental',
-                'Photography',
-                'Other'
-            ]
-        }
-    }],
+    careerDetails: {
+        portfolioWork: [{
+            title: String,
+            type: {
+                type: String,
+                enum: ['Short Film', 'Feature Film', 'Documentary', 'Music Video', 'Commercial', 'Animation', 'Web Series', 'TV Show', 'Corporate Video', 'Experimental', 'Photography', 'Other']
+            }
+        }],
+        educationTraining: [{
+            title: String,
+            where: String
+        }],
+        certificationsLicenses: [String],
+        unionStatus: String
+    },
     connectivity: {
         connectSocials: [String],
         extraWebsites: [{ title: String, url: String }],
