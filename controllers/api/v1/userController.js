@@ -10,11 +10,12 @@ const createUser = async (req, res) => {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
-        // check if user already exists
-        const existingUser = await User.findOne({ username });
+          // check if email already exists
+        const existingUser = await User.findOne({ email });
         if (existingUser) {
-            return res.status(400).json({ message: 'Username already exists' });
+            return res.status(400).json({ message: 'Email already exists' });
         }
+
 
         // create new user
         const newUser = new User({ username, email, password, role });
