@@ -27,11 +27,13 @@ db.once('open', () => {
 // routes
 const jobsRouter = require('./routes/api/v1/jobs');
 const usersRouter = require('./routes/api/v1/user');
+const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
 
 // route handlers
 app.use('/api/v1/jobs', jobsRouter);
 app.use('/api/v1/user', usersRouter);
+app.use('/api/v1/crew', crewRouter);
 app.use('/api/v1/business', businessRouter);
 
 app.listen(port, () => {
