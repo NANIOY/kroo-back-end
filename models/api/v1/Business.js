@@ -4,7 +4,10 @@ const Schema = mongoose.Schema;
 // schema for invited employees
 const EmployeeSchema = new Schema({
     email: String,
-    role: String
+    role: {
+        type: String,
+        enum: ['Producer', 'Director', 'Editor']
+    }
 });
 
 // schema for business data
