@@ -2,20 +2,20 @@ const express = require('express');
 const router = express.Router();
 const jobController = require('../../../controllers/api/v1/jobController');
 
-// GET all shoe orders
+// GET all jobs
 router.get('/', jobController.getJobs);
 
-// GET shoe order by ID
+// GET job by ID
 router.get('/:id', jobController.getJobById);
 
-// POST new shoe order
+// POST new job
 router.post('/', jobController.createJob);
 
-// PUT & PATCH shoe order by ID
+// PUT & PATCH job by ID
 router.put('/:id', jobController.updateJob);
 router.patch('/:id', jobController.updateJob);
 
-// DELETE shoe order by ID
+// DELETE job by ID
 router.delete('/:id', jobController.deleteJob);
 
 module.exports = router;
