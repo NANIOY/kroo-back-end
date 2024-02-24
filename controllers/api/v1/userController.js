@@ -1,5 +1,18 @@
 const { User } = require('../../../models/api/v1/User');
 
+// get all users
+const getAllUsers = async (req, res) => {
+    try {
+        // fetch all users
+        const users = await User.find();
+
+        res.status(200).json({ message: 'Users fetched successfully', data: { users } });
+    } catch (error) {
+        console.error('Error fetching users:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 // create new user
 const createUser = async (req, res) => {
     try {
@@ -28,6 +41,9 @@ const createUser = async (req, res) => {
     }
 };
 
+
+
 module.exports = {
-    createUser,
+    getAllUsers,
+    createUser
 };
