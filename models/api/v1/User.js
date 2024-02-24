@@ -18,11 +18,8 @@ const CrewDataSchema = new Schema({
         bio: String
     },
     careerDetails: {
-        portfolioWork: [String],
-        type: String,
-        educationTraining: [{ title: String, where: String }],
-        certificationsLicenses: [String],
-        unionStatus: String
+        type: Schema.Types.Mixed,
+        default: {}
     },
     connectivity: {
         connectSocials: [String],
@@ -31,7 +28,7 @@ const CrewDataSchema = new Schema({
     }
 });
 
-// schema for general user data
+// schema for regular user data
 const UserSchema = new Schema({
     username: {
         type: String,
@@ -51,13 +48,15 @@ const UserSchema = new Schema({
         default: 'user'
     },
     crewData: {
-        type: CrewDataSchema,
-        required: function() {
-            return this.role === 'crew';
-        }
+        type: Schema.Types.ObjectId,
+        ref: 'CrewData'
     }
 });
 
 const User = mongoose.model('User', UserSchema);
+const CrewData = mongoose.model('CrewData', CrewDataSchema);
 
-module.exports = User;
+module.exports = {
+    User,
+    CrewData
+};
