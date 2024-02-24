@@ -11,4 +11,8 @@ router.get('/:id', userController.getUserById);
 // POST new user
 router.post('/', userController.createUser);
 
+// PUT & PATCH update user by ID
+router.put('/:id', userController.updateUser);
+router.patch('/:id', userController.updateUser);
+
 module.exports = router;

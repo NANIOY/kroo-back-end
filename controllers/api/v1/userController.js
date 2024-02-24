@@ -70,10 +70,42 @@ const createUser = async (req, res) => {
     }
 };
 
+// update user
+const updateUser = async (req, res) => {
+    try {
+        const userId = req.params.id;
+        const updateData = req.body;
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        // find user by ID and update it
+        const updatedUser = await User.findByIdAndUpdate(userId, updateData, {
+            new: true,
+            runValidators: true,
+        });
+
+        if (!updatedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        res.status(200).json({ message: 'User updated successfully', data: { user: updatedUser } });
+    } catch (error) {
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid user ID format' });
+        }
+
+        console.error('Error updating user:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 
 
 module.exports = {
     getAllUsers,
     getUserById,
-    createUser
+    createUser,
+    updateUser
 };
