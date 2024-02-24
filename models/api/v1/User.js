@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
+// schema for portfolio work
+const PortfolioWorkSchema = new Schema({
+    title: String,
+    type: String, // type of portfolio work
+});
+
 // schema for crew data
 const CrewDataSchema = new Schema({
     basicInfo: {
@@ -17,10 +23,7 @@ const CrewDataSchema = new Schema({
         workRadius: Number,
         bio: String
     },
-    careerDetails: {
-        type: Schema.Types.Mixed,
-        default: {}
-    },
+    portfolioWork: [PortfolioWorkSchema],
     connectivity: {
         connectSocials: [String],
         extraWebsites: [{ title: String, url: String }],
@@ -28,7 +31,7 @@ const CrewDataSchema = new Schema({
     }
 });
 
-// schema for regular user data
+// schema for user
 const UserSchema = new Schema({
     username: {
         type: String,
