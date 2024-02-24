@@ -28,6 +28,14 @@ const createUser = async (req, res) => {
                 return res.status(400).json({ message: 'Crew data not provided' });
             }
 
+            // check if portfolio work types are valid
+            const validTypes = ['Short Film', 'Feature Film', 'Documentary', 'Music Video', 'Commercial', 'Animation', 'Web Series', 'TV Show', 'Corporate Video', 'Experimental', 'Photography', 'Other'];
+            for (const work of portfolioWork) {
+                if (!validTypes.includes(work.type)) {
+                    return res.status(400).json({ message: `Invalid portfolio work type: ${work.type}` });
+                }
+            }
+
             // create new crewData with portfolioWork
             const newCrewData = new CrewData({ basicInfo, profileDetails, connectivity, portfolioWork });
             await newCrewData.save();
