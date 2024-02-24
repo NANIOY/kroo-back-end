@@ -3,7 +3,7 @@ const { CrewData, User } = require('../../../models/api/v1/User');
 // create crew data
 const createCrewData = async (req, res) => {
     try {
-        const { userId, careerDetails } = req.body;
+        const { userId, basicInfo, profileDetails, careerDetails, connectivity } = req.body;
 
         // check if user ID is provided
         if (!userId) {
@@ -21,9 +21,30 @@ const createCrewData = async (req, res) => {
             return res.status(400).json({ message: 'Career details are required and must be an object' });
         }
 
+        // verify if portfolioWork exists and is an array
+        if (!careerDetails.portfolioWork || !Array.isArray(careerDetails.portfolioWork)) {
+            return res.status(400).json({ message: 'Portfolio work must be an array' });
+        }
+
+        // iterate over portfolioWork array
+        for (const work of careerDetails.portfolioWork) {
+            // check if each work item is an object
+            if (typeof work !== 'object') {
+                return res.status(400).json({ message: 'Each portfolio work item must be an object' });
+            }
+
+            // check if each work item has required properties
+            if (!work.title || !work.type) {
+                return res.status(400).json({ message: 'Each portfolio work item must have title and type' });
+            }
+        }
+
         // create new crew data
         const newCrewData = new CrewData({
-            careerDetails
+            basicInfo,
+            profileDetails,
+            careerDetails,
+            connectivity
         });
         await newCrewData.save();
 
