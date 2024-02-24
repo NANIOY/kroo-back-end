@@ -12,6 +12,12 @@ const createBusiness = async (req, res) => {
         // create a new business instance
         const newBusiness = new Business(req.body);
 
+        // check if the number of invited employees exceeds the allowed limit
+        const numberOfEmployees = req.body.invitedEmployees.length;
+        if (numberOfEmployees > newBusiness.paymentInfo.numberOfUsers) {
+            return res.status(400).json({ message: 'Number of invited employees exceeds the allowed limit' });
+        }
+
         // save the new business to the database
         await newBusiness.save();
 
