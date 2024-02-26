@@ -25,6 +25,19 @@ const getCrewData = async (req, res) => {
     }
 };
 
+// GET all crew data
+const getAllCrewData = async (req, res) => {
+    try {
+        // Fetch all crew data
+        const crewData = await CrewData.find();
+
+        res.status(200).json({ message: 'Crew Data fetched successfully', data: crewData });
+    } catch (error) {
+        console.error('Error fetching all crew data:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 // create crew data by user ID
 const createCrewData = async (req, res) => {
     try {
@@ -161,6 +174,7 @@ const deleteCrewData = async (req, res) => {
 
 module.exports = {
     getCrewData,
+    getAllCrewData,
     createCrewData,
     updateCrewData,
     deleteCrewData

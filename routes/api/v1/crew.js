@@ -5,6 +5,9 @@ const crewController = require('../../../controllers/api/v1/crewController');
 // GET crew data by ID
 router.get('/:id', crewController.getCrewData);
 
+// GET all crew data
+router.get('/', crewController.getAllCrewData);
+
 // POST new crew data
 router.post('/', crewController.createCrewData);
 
