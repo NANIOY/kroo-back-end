@@ -40,7 +40,7 @@ const createCrewData = async (req, res) => {
             await user.save();
         }
 
-        res.status(201).json({ message: 'Crew data created/updated successfully', data: { crewData } });
+        res.status(201).json({ message: 'Crew data created/updated successfully', data: { userId, crewData } });
     } catch (error) {
         console.error('Error creating/updating crew data:', error);
         res.status(500).json({ message: 'Internal Server Error' });
