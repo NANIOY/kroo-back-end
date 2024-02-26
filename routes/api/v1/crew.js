@@ -12,4 +12,7 @@ router.post('/', crewController.createCrewData);
 // router.put('/', crewController.createOrUpdateCrewData);
 // router.patch('/', crewController.createOrUpdateCrewData);
 
+// DELETE crew data by ID
+router.delete('/:id', crewController.deleteCrewData);
+
 module.exports = router;

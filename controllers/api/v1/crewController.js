@@ -1,6 +1,6 @@
 const { CrewData, User } = require('../../../models/api/v1/User');
 
-// create crew data
+// create crew data by user ID
 const createCrewData = async (req, res) => {
     try {
         const { userId, basicInfo, profileDetails, careerDetails, connectivity } = req.body;
@@ -64,6 +64,42 @@ const createCrewData = async (req, res) => {
     }
 };
 
+// delete crew data by ID
+const deleteCrewData = async (req, res) => {
+    try {
+        const { userId } = req.body;
+
+        // check if user ID is provided
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
+        // check if user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // check if user has crewData assigned
+        if (!user.crewData) {
+            return res.status(404).json({ message: 'No crewData found for the user' });
+        }
+
+        // delete crewData by ID
+        await CrewData.findByIdAndDelete(user.crewData);
+
+        // remove crewData ID from user
+        user.crewData = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'Crew data deleted successfully' });
+    } catch (error) {
+        console.error('Error deleting crew data:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
-    createCrewData
+    createCrewData,
+    deleteCrewData
 };
