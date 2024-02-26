@@ -1,4 +1,35 @@
 const Business = require('../../../models/api/v1/Business');
+const nodemailer = require('nodemailer');
+
+const emailUser = process.env.EMAIL_USER;
+const emailPassword = process.env.EMAIL_PASSWORD;
+
+const transporter = nodemailer.createTransport({
+    service: 'gmail',
+    auth: {
+        user: process.env.EMAIL_USER,
+        pass: process.env.EMAIL_PASSWORD
+    }
+});
+
+// function to send email to invited employees
+const sendEmailToEmployees = async (employees) => {
+    try {
+        // Send email to each employee
+        for (const employee of employees) {
+            await transporter.sendMail({
+                from: 'hello@kroo.site',
+                to: employee.email,
+                subject: 'Subject of the email',
+                text: 'Body of the email'
+            });
+        }
+        console.log('Emails sent successfully');
+    } catch (error) {
+        console.error('Error sending email:', error);
+        throw error;
+    }
+};
 
 // function to validate email format
 function isValidEmail(email) {
@@ -90,6 +121,9 @@ const createBusiness = async (req, res) => {
 
         // save the new business to the database
         await newBusiness.save();
+
+        // send email to invited employees
+        await sendEmailToEmployees(req.body.invitedEmployees);
 
         res.status(201).json({ message: 'Business created successfully', data: { business: newBusiness } });
     } catch (error) {
