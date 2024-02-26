@@ -1,4 +1,4 @@
-const { User } = require('../../../models/api/v1/User');
+const { User, CrewData } = require('../../../models/api/v1/User');
 
 // get all users
 const getAllUsers = async (req, res) => {
@@ -23,8 +23,8 @@ const getUserById = async (req, res) => {
             return res.status(400).json({ message: 'User ID is required' });
         }
 
-        // fetch user by ID
-        const user = await User.findById(userId);
+        // fetch user by ID and populate CrewData
+        const user = await User.findById(userId).populate('crewData');
 
         // check if user with provided ID exists
         if (!user) {
