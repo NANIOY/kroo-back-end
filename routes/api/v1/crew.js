@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const crewController = require('../../../controllers/api/v1/crewController');
 
-// GET crew data by ID
-router.get('/:id', crewController.getCrewData);
-
 // GET all crew data
 router.get('/', crewController.getAllCrewData);
+
+// GET crew data by ID
+router.get('/:id', crewController.getCrewData);
 
 // POST new crew data
 router.post('/', crewController.createCrewData);
