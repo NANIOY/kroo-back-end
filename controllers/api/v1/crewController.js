@@ -50,6 +50,31 @@ const createOrUpdateCrewData = async (req, res) => {
     }
 };
 
+const getCrewDataById = async (req, res) => {
+    try {
+        const crewDataId = req.params.id;
+
+        // check if crew data ID is provided
+        if (!crewDataId) {
+            return res.status(400).json({ message: 'Crew Data ID is required' });
+        }
+
+        // fetch crew data by ID
+        const crewData = await CrewData.findById(crewDataId);
+
+        // check if crew data with provided ID exists
+        if (!crewData) {
+            return res.status(404).json({ message: 'Crew Data not found' });
+        }
+
+        res.status(200).json({ message: 'Crew Data fetched successfully', data: crewData });
+    } catch (error) {
+        console.error('Error fetching crew data by ID:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
-    createOrUpdateCrewData
+    createOrUpdateCrewData,
+    getCrewDataById
 };
