@@ -14,6 +14,44 @@ function isValidURL(url) {
     return urlRegex.test(url);
 }
 
+// get all businesses
+const getAllBusinesses = async (req, res) => {
+    try {
+        // fetch all businesses
+        const businesses = await Business.find();
+
+        res.status(200).json({ message: 'Businesses fetched successfully', data: { businesses } });
+    } catch (error) {
+        console.error('Error fetching businesses:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+// get business by ID
+const getBusinessById = async (req, res) => {
+    try {
+        const businessId = req.params.id;
+
+        // check if business ID is provided
+        if (!businessId) {
+            return res.status(400).json({ message: 'Business ID is required' });
+        }
+
+        // fetch business by ID
+        const business = await Business.findById(businessId);
+
+        // check if business with provided ID exists
+        if (!business) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
+
+        res.status(200).json({ message: 'Business fetched successfully', data: { business: { name: business.name, ...business._doc } } });
+    } catch (error) {
+        console.error('Error fetching business by ID:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 // create new business
 const createBusiness = async (req, res) => {
     try {
@@ -65,5 +103,7 @@ const createBusiness = async (req, res) => {
 };
 
 module.exports = {
+    getAllBusinesses,
+    getBusinessById,
     createBusiness
 };
