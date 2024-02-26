@@ -102,8 +102,64 @@ const createBusiness = async (req, res) => {
     }
 };
 
+// update business
+const updateBusiness = async (req, res) => {
+    try {
+        const businessId = req.params.id;
+        const updates = req.body;
+
+        // check if business ID is provided
+        if (!businessId) {
+            return res.status(400).json({ message: 'Business ID is required' });
+        }
+
+        // find business by ID
+        let business = await Business.findById(businessId);
+        if (!business) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
+
+         // check if updated business name already exists
+         if (updates.name && updates.name !== business.name) {
+            const existingName = await Business.findOne({ name: updates.name });
+            if (existingName) {
+                return res.status(400).json({ message: 'Business name already exists' });
+            }
+        }
+
+        // check if updated email already exists
+        if (updates.businessInfo && updates.businessInfo.companyEmail &&
+            updates.businessInfo.companyEmail !== business.businessInfo.companyEmail) {
+            const existingEmail = await Business.findOne({ 'businessInfo.companyEmail': updates.businessInfo.companyEmail });
+            if (existingEmail) {
+                return res.status(400).json({ message: 'Email already exists' });
+            }
+        }
+
+        // Update business fields
+        Object.keys(updates).forEach(key => {
+            if (key !== '_id') {
+                business[key] = updates[key];
+            }
+        });
+
+        // save updated business
+        await business.save();
+
+        res.status(200).json({ message: 'Business updated successfully', data: { business } });
+    } catch (error) {
+        console.error('Error updating business:', error);
+        if (error.name === 'ValidationError') {
+            // handle validation errors
+            return res.status(400).json({ message: error.message });
+        }
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     getAllBusinesses,
     getBusinessById,
-    createBusiness
+    createBusiness,
+    updateBusiness
 };

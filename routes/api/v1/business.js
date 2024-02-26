@@ -12,6 +12,8 @@ router.get('/:id', businessController.getBusinessById);
 router.post('/', businessController.createBusiness);
 
 // PUT & PATCH update business by ID
+router.put('/:id', businessController.updateBusiness);
+router.patch('/:id', businessController.updateBusiness);
 
 // DELETE business by ID
 
