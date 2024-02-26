@@ -8,9 +8,9 @@ const crewController = require('../../../controllers/api/v1/crewController');
 // POST new crew data
 router.post('/', crewController.createCrewData);
 
-// // PUT & PATCH crew data
-// router.put('/', crewController.createOrUpdateCrewData);
-// router.patch('/', crewController.createOrUpdateCrewData);
+// PUT & PATCH crew data
+router.put('/', crewController.updateCrewData);
+router.patch('/', crewController.updateCrewData);
 
 // DELETE crew data by ID
 router.delete('/:id', crewController.deleteCrewData);
