@@ -3,7 +3,7 @@ const router = express.Router();
 const crewController = require('../../../controllers/api/v1/crewController');
 
 // GET crew data by ID
-// router.get('/:id', crewController.getCrewDataById);
+router.get('/:id', crewController.getCrewData);
 
 // POST new crew data
 router.post('/', crewController.createCrewData);
