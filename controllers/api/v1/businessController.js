@@ -31,6 +31,19 @@ const sendEmailToEmployees = async (employees) => {
     }
 };
 
+// function to send email to invited employees, separate post request
+const sendInvite = async (req, res) => {
+    try {
+        const employees = req.body;
+        await sendEmailToEmployees(employees);
+        res.status(200).json({ message: 'Emails sent successfully' });
+    } catch (error) {
+        console.error('Error sending emails:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+
 // function to validate email format
 function isValidEmail(email) {
     // regular expression for basic email validation
@@ -219,6 +232,7 @@ const deleteBusiness = async (req, res) => {
 }
 
 module.exports = {
+    sendInvite,
     getAllBusinesses,
     getBusinessById,
     createBusiness,

@@ -2,6 +2,9 @@ const express = require('express');
 const router = express.Router();
 const businessController = require('../../../controllers/api/v1/businessController');
 
+// POST email to invited employees
+router.post('/:id/invite', businessController.sendInvite);
+
 // GET all businesses
 router.get('/', businessController.getAllBusinesses);
 
