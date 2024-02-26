@@ -1,7 +1,7 @@
 const { CrewData, User } = require('../../../models/api/v1/User');
 
-// create or update crew data
-const createOrUpdateCrewData = async (req, res) => {
+// create crew data
+const createCrewData = async (req, res) => {
     try {
         const { userId, basicInfo, profileDetails, careerDetails, connectivity } = req.body;
 
@@ -11,70 +11,59 @@ const createOrUpdateCrewData = async (req, res) => {
         }
 
         // check if user exists
-        let user = await User.findById(userId);
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        let crewData;
-
-        // check if user already has associated CrewData
+        // check if user already has crewData assigned
         if (user.crewData) {
-            // update existing CrewData
-            crewData = await CrewData.findByIdAndUpdate(
-                user.crewData,
-                { basicInfo, profileDetails, careerDetails, connectivity },
-                { new: true } // return the updated document
-            );
-        } else {
-            // create new CrewData
-            crewData = new CrewData({
-                basicInfo,
-                profileDetails,
-                careerDetails,
-                connectivity
-            });
-            await crewData.save();
-            // assign crewData ID to user
-            user.crewData = crewData._id;
-            await user.save();
+            return res.status(400).json({ message: 'User already has crewData assigned. Use PATCH or PUT to update.' });
         }
 
-        // re-fetch the user to populate the crewData field
-        user = await User.findById(userId).populate('crewData');
+        // verify if careerDetails exists and is an object
+        if (!careerDetails || typeof careerDetails !== 'object') {
+            return res.status(400).json({ message: 'Career details are required and must be an object' });
+        }
 
-        res.status(200).json({ message: 'Crew data created/updated successfully', data: { user } });
+        // verify if portfolioWork exists and is an array
+        if (!careerDetails.portfolioWork || !Array.isArray(careerDetails.portfolioWork)) {
+            return res.status(400).json({ message: 'Portfolio work must be an array' });
+        }
+
+        // iterate over portfolioWork array
+        for (const work of careerDetails.portfolioWork) {
+            // check if each work item is an object
+            if (typeof work !== 'object') {
+                return res.status(400).json({ message: 'Each portfolio work item must be an object' });
+            }
+
+            // check if each work item has required properties
+            if (!work.title || !work.type) {
+                return res.status(400).json({ message: 'Each portfolio work item must have title and type' });
+            }
+        }
+
+        // create new crew data
+        const newCrewData = new CrewData({
+            basicInfo,
+            profileDetails,
+            careerDetails,
+            connectivity
+        });
+        await newCrewData.save();
+
+        // assign crewData ID to user
+        user.crewData = newCrewData._id;
+        await user.save();
+
+        res.status(201).json({ message: 'Crew data created successfully', data: { crewData: newCrewData } });
     } catch (error) {
-        console.error('Error creating/updating crew data:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
-
-const getCrewDataById = async (req, res) => {
-    try {
-        const crewDataId = req.params.id;
-
-        // check if crew data ID is provided
-        if (!crewDataId) {
-            return res.status(400).json({ message: 'Crew Data ID is required' });
-        }
-
-        // fetch crew data by ID
-        const crewData = await CrewData.findById(crewDataId);
-
-        // check if crew data with provided ID exists
-        if (!crewData) {
-            return res.status(404).json({ message: 'Crew Data not found' });
-        }
-
-        res.status(200).json({ message: 'Crew Data fetched successfully', data: crewData });
-    } catch (error) {
-        console.error('Error fetching crew data by ID:', error);
+        console.error('Error creating crew data:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
 
 module.exports = {
-    createOrUpdateCrewData,
-    getCrewDataById
+    createCrewData
 };
