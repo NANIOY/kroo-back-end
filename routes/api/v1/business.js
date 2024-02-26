@@ -16,5 +16,6 @@ router.put('/:id', businessController.updateBusiness);
 router.patch('/:id', businessController.updateBusiness);
 
 // DELETE business by ID
+router.delete('/:id', businessController.deleteBusiness);
 
 module.exports = router;

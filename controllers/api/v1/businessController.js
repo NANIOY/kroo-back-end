@@ -157,9 +157,37 @@ const updateBusiness = async (req, res) => {
     }
 };
 
+// delete business
+const deleteBusiness = async (req, res) => {
+    try {
+        const businessId = req.params.id;
+
+        // check if business ID is provided
+        if (!businessId) {
+            return res.status(400).json({ message: 'Business ID is required' });
+        }
+
+        // find business by ID and delete it
+        const deletedBusiness = await Business.findByIdAndDelete(businessId);
+
+        if (!deletedBusiness) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
+
+        res.status(200).json({ message: 'Business deleted successfully'});
+    } catch (error) {
+        if (error.name === 'CastError') {
+            return res.status(400).json({ message: 'Invalid business ID format' });
+        }
+        console.error('Error deleting business:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+}
+
 module.exports = {
     getAllBusinesses,
     getBusinessById,
     createBusiness,
-    updateBusiness
+    updateBusiness,
+    deleteBusiness
 };
