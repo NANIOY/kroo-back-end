@@ -16,45 +16,33 @@ const createCrewData = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
-        // verify if careerDetails exists and is an object
-        if (!careerDetails || typeof careerDetails !== 'object') {
-            return res.status(400).json({ message: 'Career details are required and must be an object' });
+        let crewData;
+
+        // check if user already has associated CrewData
+        if (user.crewData) {
+            // update existing CrewData
+            crewData = await CrewData.findByIdAndUpdate(
+                user.crewData,
+                { basicInfo, profileDetails, careerDetails, connectivity },
+                { new: true } // return the updated document
+            );
+        } else {
+            // create new CrewData
+            crewData = new CrewData({
+                basicInfo,
+                profileDetails,
+                careerDetails,
+                connectivity
+            });
+            await crewData.save();
+            // assign crewData ID to user
+            user.crewData = crewData._id;
+            await user.save();
         }
 
-        // verify if portfolioWork exists and is an array
-        if (!careerDetails.portfolioWork || !Array.isArray(careerDetails.portfolioWork)) {
-            return res.status(400).json({ message: 'Portfolio work must be an array' });
-        }
-
-        // iterate over portfolioWork array
-        for (const work of careerDetails.portfolioWork) {
-            // check if each work item is an object
-            if (typeof work !== 'object') {
-                return res.status(400).json({ message: 'Each portfolio work item must be an object' });
-            }
-
-            // check if each work item has required properties
-            if (!work.title || !work.type) {
-                return res.status(400).json({ message: 'Each portfolio work item must have title and type' });
-            }
-        }
-
-        // create new crew data
-        const newCrewData = new CrewData({
-            basicInfo,
-            profileDetails,
-            careerDetails,
-            connectivity
-        });
-        await newCrewData.save();
-
-        // assign crewData ID to user
-        user.crewData = newCrewData._id;
-        await user.save();
-
-        res.status(201).json({ message: 'Crew data created successfully', data: { crewData: newCrewData } });
+        res.status(201).json({ message: 'Crew data created/updated successfully', data: { crewData } });
     } catch (error) {
-        console.error('Error creating crew data:', error);
+        console.error('Error creating/updating crew data:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
