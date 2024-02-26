@@ -1,48 +1,5 @@
 const Business = require('../../../models/api/v1/Business');
-const nodemailer = require('nodemailer');
-
-const emailUser = process.env.EMAIL_USER;
-const emailPassword = process.env.EMAIL_PASSWORD;
-
-const transporter = nodemailer.createTransport({
-    service: 'gmail',
-    auth: {
-        user: process.env.EMAIL_USER,
-        pass: process.env.EMAIL_PASSWORD
-    }
-});
-
-// function to send email to invited employees
-const sendEmailToEmployees = async (employees) => {
-    try {
-        // Send email to each employee
-        for (const employee of employees) {
-            await transporter.sendMail({
-                from: 'hello@kroo.site',
-                to: employee.email,
-                subject: 'Subject of the email',
-                text: 'Body of the email'
-            });
-        }
-        console.log('Emails sent successfully');
-    } catch (error) {
-        console.error('Error sending email:', error);
-        throw error;
-    }
-};
-
-// function to send email to invited employees, separate post request
-const sendInvite = async (req, res) => {
-    try {
-        const employees = req.body;
-        await sendEmailToEmployees(employees);
-        res.status(200).json({ message: 'Emails sent successfully' });
-    } catch (error) {
-        console.error('Error sending emails:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
-    }
-};
-
+const { sendEmailToEmployees } = require('./mailController');
 
 // function to validate email format
 function isValidEmail(email) {
@@ -232,7 +189,6 @@ const deleteBusiness = async (req, res) => {
 }
 
 module.exports = {
-    sendInvite,
     getAllBusinesses,
     getBusinessById,
     createBusiness,
