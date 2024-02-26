@@ -1,7 +1,7 @@
 const { CrewData, User } = require('../../../models/api/v1/User');
 
-// create crew data
-const createCrewData = async (req, res) => {
+// create or update crew data
+const createOrUpdateCrewData = async (req, res) => {
     try {
         const { userId, basicInfo, profileDetails, careerDetails, connectivity } = req.body;
 
@@ -11,7 +11,7 @@ const createCrewData = async (req, res) => {
         }
 
         // check if user exists
-        const user = await User.findById(userId);
+        let user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -40,7 +40,10 @@ const createCrewData = async (req, res) => {
             await user.save();
         }
 
-        res.status(201).json({ message: 'Crew data created/updated successfully', data: { userId, crewData } });
+        // re-fetch the user to populate the crewData field
+        user = await User.findById(userId).populate('crewData');
+
+        res.status(200).json({ message: 'Crew data created/updated successfully', data: { user } });
     } catch (error) {
         console.error('Error creating/updating crew data:', error);
         res.status(500).json({ message: 'Internal Server Error' });
@@ -48,5 +51,5 @@ const createCrewData = async (req, res) => {
 };
 
 module.exports = {
-    createCrewData
+    createOrUpdateCrewData
 };
