@@ -19,9 +19,8 @@ const sendEmail = async (to, subject, text) => {
     }
 };
 
-
 const generateRandomCode = () => {
-    const uuid = uuidv4(); // Generate a UUID
+    const uuid = uuidv4(); // generate a UUID
     const truncatedCode = uuid.replace(/-/g, '').slice(0, 8); // remove hyphens and take first 8 characters
     return truncatedCode;
 };
@@ -49,6 +48,7 @@ const sendInvite = async (req, res) => {
 
         // fetch business information
         const business = await Business.findById(businessId);
+
         if (!business) {
             return res.status(404).json({ message: 'Business not found' });
         }
@@ -56,7 +56,14 @@ const sendInvite = async (req, res) => {
         // extract email from request body
         const { email } = req.body;
 
+        // Ensure business name is defined
+        if (!business.name) {
+            return res.status(400).json({ message: 'Business name is undefined' });
+        }
+
+        // Send invitation email to employees
         await sendEmailToEmployees([{ email }], business);
+        
         res.status(200).json({ message: 'Emails sent successfully' });
     } catch (error) {
         console.error('Error sending emails:', error);
