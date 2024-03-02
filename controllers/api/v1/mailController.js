@@ -52,12 +52,19 @@ const sendInvite = async (req, res) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-        // construct email content
-        const emailContent = `You have been invited to ${business.name} as ${req.body.role}. Your invitation code is: ${generateRandomCode()}`;
+        // extract emails and roles from request body
+        const { invitations } = req.body;
 
-        // send invitation email to employees
-        await sendEmail(req.body.email, 'Invitation to the Business', emailContent);
-        
+        // construct email content for each invitation
+        const emailPromises = invitations.map(invitation => {
+            const { email, role } = invitation;
+            const emailContent = `You have been invited to ${business.name} as ${role}. Your invitation code is: ${generateRandomCode()}`;
+            return sendEmail(email, 'Invitation to the Business', emailContent);
+        });
+
+        // send invitation emails to all employees
+        await Promise.all(emailPromises);
+
         res.status(200).json({ message: 'Emails sent successfully' });
     } catch (error) {
         console.error('Error sending emails:', error);
