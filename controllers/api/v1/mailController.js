@@ -29,8 +29,7 @@ const sendEmailToEmployees = async (employees, business) => {
     try {
         // send email to each employee
         for (const employee of employees) {
-            const randomCode = generateRandomCode();
-            const emailContent = `You have been invited to ${business.name} as ${employee.role}. Your invitation code is: ${randomCode}`;
+            const emailContent = `You have been invited to ${business.name} as ${employee.role}. Your invitation code is: ${generateRandomCode()}`;
             await sendEmail(employee.email, 'Invitation to the Business', emailContent);
             console.log(`Email sent to ${employee.email}`);
         }
@@ -53,16 +52,11 @@ const sendInvite = async (req, res) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-        // extract email from request body
-        const { email } = req.body;
+        // construct email content
+        const emailContent = `You have been invited to ${business.name} as ${req.body.role}. Your invitation code is: ${generateRandomCode()}`;
 
-        // Ensure business name is defined
-        if (!business.name) {
-            return res.status(400).json({ message: 'Business name is undefined' });
-        }
-
-        // Send invitation email to employees
-        await sendEmailToEmployees([{ email }], business);
+        // send invitation email to employees
+        await sendEmail(req.body.email, 'Invitation to the Business', emailContent);
         
         res.status(200).json({ message: 'Emails sent successfully' });
     } catch (error) {
