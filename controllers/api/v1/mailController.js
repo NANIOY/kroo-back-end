@@ -1,25 +1,20 @@
-const axios = require('axios');
 const { v4: uuidv4 } = require('uuid');
 const Business = require('../../../models/api/v1/Business');
+const sgMail = require('@sendgrid/mail');
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 const sendEmail = async (to, subject, text) => {
     try {
-        const response = await axios.post('https://api.postmarkapp.com/email', {
-            From: 'hello@kroo.site',
-            To: to,
-            Subject: subject,
-            TextBody: text,
-            MessageStream: 'outbound',
-        }, {
-            headers: {
-                'X-Postmark-Server-Token': process.env.POSTMARK_SERVER_TOKEN,
-                'Content-Type': 'application/json',
-            },
-        });
-        console.log('Email sent successfully:', response.data);
-        return response.data;
+        const msg = {
+            to,
+            from: 'hello@kroo.site',
+            subject,
+            text,
+        };
+        await sgMail.send(msg);
+        console.log('Email sent successfully');
     } catch (error) {
-        console.error('Error sending email:', error.response.data);
+        console.error('Error sending email:', error);
         throw error;
     }
 };
