@@ -123,8 +123,8 @@ const updateBusiness = async (req, res) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-         // check if updated business name already exists
-         if (updates.name && updates.name !== business.name) {
+        // check if updated business name already exists
+        if (updates.name && updates.name !== business.name) {
             const existingName = await Business.findOne({ name: updates.name });
             if (existingName) {
                 return res.status(400).json({ message: 'Business name already exists' });
@@ -178,7 +178,7 @@ const deleteBusiness = async (req, res) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-        res.status(200).json({ message: 'Business deleted successfully'});
+        res.status(200).json({ message: 'Business deleted successfully' });
     } catch (error) {
         if (error.name === 'CastError') {
             return res.status(400).json({ message: 'Invalid business ID format' });
