@@ -1,6 +1,6 @@
 const { v4: uuidv4 } = require('uuid');
 const Business = require('../../../models/api/v1/Business');
-const User = require('../../../models/api/v1/User');
+const { User } = require('../../../models/api/v1/User');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -77,6 +77,13 @@ const sendInvite = async (req, res) => {
 const sendPasswordResetEmail = async (req, res) => {
     try {
         const { email } = req.body;
+
+        // check if email exists
+        const existingUser = await User.findOne({ email });
+        if (!existingUser) {
+            return res.status(404).json({ message: 'User not found' });
+        };
+
         const resetToken = generateRandomCode(); // generate reset token
         const resetLink = `http://kroo.site/reset-password?token=${resetToken}`;
         
