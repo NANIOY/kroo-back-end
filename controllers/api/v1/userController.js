@@ -1,4 +1,6 @@
 const { User, CrewData } = require('../../../models/api/v1/User');
+const bcrypt = require('bcrypt');
+const saltRounds = 12;
 
 // get all users
 const getAllUsers = async (req, res) => {
@@ -58,8 +60,11 @@ const createUser = async (req, res) => {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
-        // create new user
-        const newUser = new User({ username, email, password, role });
+        // hash the password
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+
+        // create new user with hashed password
+        const newUser = new User({ username, email, password: hashedPassword, role });
 
         await newUser.save();
 
