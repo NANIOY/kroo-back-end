@@ -29,14 +29,16 @@ const jobsRouter = require('./routes/api/v1/jobs');
 const usersRouter = require('./routes/api/v1/user');
 const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
-const mailController = require('./routes/api/v1/mail');
+const mailRouter = require('./routes/api/v1/mail');
+const authRouter = require('./routes/api/v1/auth');
 
 // route handlers
 app.use('/api/v1/jobs', jobsRouter);
 app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/crew', crewRouter);
 app.use('/api/v1/business', businessRouter);
-app.use('/api/v1/mail', mailController);
+app.use('/api/v1/mail', mailRouter);
+app.use('/api/v1/auth', authRouter);
 
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
