@@ -1,15 +1,17 @@
 const { v4: uuidv4 } = require('uuid');
 const Business = require('../../../models/api/v1/Business');
+const User = require('../../../models/api/v1/User');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
-const sendEmail = async (to, subject, text) => {
+const sendEmail = async (to, subject, text, htmlContent) => {
     try {
         const msg = {
             to,
             from: 'hello@kroo.site',
             subject,
             text,
+            html: htmlContent,
         };
         await sgMail.send(msg);
         console.log('Email sent successfully');
@@ -72,7 +74,29 @@ const sendInvite = async (req, res) => {
     }
 };
 
+const sendPasswordResetEmail = async (req, res) => {
+    try {
+        const { email } = req.body;
+        const resetToken = generateRandomCode(); // Generate reset token
+        // Assuming you have a User model
+   
+        const resetLink = `http://kroo.site/reset-password?token=${resetToken}`;
+        const emailContent = `
+            <p>You have requested a password reset. Please click the following link to reset your password:</p>
+            <p><a href="${resetLink}">Reset Password</a></p>
+            <p>If you did not request this, please ignore this email.</p>
+        `;
+        await sendEmail(email, 'Password Reset Request', 'Password Reset Request', emailContent); // Provide both plain text and HTML content
+        console.log(`Password reset email sent to ${email}`);
+        res.status(200).json({ message: 'Password reset email sent successfully' });
+    } catch (error) {
+        console.error('Error sending password reset email:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
 module.exports = {
     sendEmailToEmployees,
-    sendInvite
+    sendInvite,
+    sendPasswordResetEmail
 };
