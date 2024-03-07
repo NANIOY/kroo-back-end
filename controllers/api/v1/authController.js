@@ -1,32 +1,35 @@
 const bcrypt = require('bcrypt');
-const User = require('../../../models/api/v1/User');
+const jwt = require('jsonwebtoken');
+const { User } = require('../../../models/api/v1/User');
 
-// handle user login
+// function to handle user login
 const login = async (req, res) => {
     try {
-        const { username, password } = req.body;
+        const { email, password } = req.body;
 
-        // find the user by username
-        const user = await User.findOne({ username });
-        
-        // check if the user exists
+        // check if email and password are provided
+        if (!email || !password) {
+            return res.status(400).json({ message: 'Email and password are required' });
+        }
+
+        // check if user with provided email exists
+        const user = await User.findOne({ email });
         if (!user) {
-            return res.status(401).json({ message: 'Invalid credentials' });
+            return res.status(404).json({ message: 'User not found' });
         }
 
-        // check if the password is valid
+        // check if password is correct
         const isPasswordValid = await bcrypt.compare(password, user.password);
-
-        if (isPasswordValid) {
-            // issue JWT token if credentials are valid
-            const token = jwt.sign({ userId: user._id, isAdmin: user.isAdmin }, process.env.JWT_SECRET, { expiresIn: '1h' });
-            console.log('Generated Token:', token);
-            res.json({ token });
-        } else {
-            res.status(401).json({ message: 'Invalid credentials' });
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid password' });
         }
+
+        // generate token
+        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+
+        res.status(200).json({ message: 'Login successful', data: { token } });
     } catch (error) {
-        console.error('Error during login:', error);
+        console.error('Error logging in user:', error);
         res.status(500).json({ message: 'Internal Server Error' });
     }
 };
