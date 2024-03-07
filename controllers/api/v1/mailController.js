@@ -77,16 +77,23 @@ const sendInvite = async (req, res) => {
 const sendPasswordResetEmail = async (req, res) => {
     try {
         const { email } = req.body;
-        const resetToken = generateRandomCode(); // Generate reset token
-        // Assuming you have a User model
-   
+        const resetToken = generateRandomCode(); // generate reset token
         const resetLink = `http://kroo.site/reset-password?token=${resetToken}`;
+        
+        // construct email content
         const emailContent = `
             <p>You have requested a password reset. Please click the following link to reset your password:</p>
             <p><a href="${resetLink}">Reset Password</a></p>
-            <p>If you did not request this, please ignore this email.</p>
+            <p>If you did not request this password reset, please do the following:</p>
+            <ol>
+                <li>Do not click on the reset password link.</li>
+                <li>Secure your account by updating your password immediately using a strong and unique password.</li>
+                <li>Contact our support team at hello@kroo.site if you have any concerns or questions.</li>
+            </ol>
         `;
-        await sendEmail(email, 'Password Reset Request', 'Password Reset Request', emailContent); // Provide both plain text and HTML content
+
+        // send email to user
+        await sendEmail(email, 'Password Reset Request', 'Password Reset Request', emailContent); 
         console.log(`Password reset email sent to ${email}`);
         res.status(200).json({ message: 'Password reset email sent successfully' });
     } catch (error) {
