@@ -14,6 +14,7 @@ const authenticate = (req, res, next) => {
             // set user info in request for later use
             req.user = {
                 userId: decoded.userId,
+                isAdmin: decoded.isAdmin || false,
                 isRemembered: true
             };
 
@@ -30,12 +31,13 @@ const authenticate = (req, res, next) => {
 
     try {
         // verify the token using secret key
-        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const decoded = jwt.verify(sessionToken, process.env.JWT_SECRET);
         
         // set user info in request for later use
         req.user = {
             userId: decoded.userId,
             isAdmin: decoded.isAdmin || false,
+            isRemembered: false
         };
 
         next();
