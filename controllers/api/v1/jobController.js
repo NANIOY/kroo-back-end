@@ -1,9 +1,10 @@
 const Job = require('../../../models/api/v1/Jobs');
+const JobApplication = require('../../../models/api/v1/JobApplication');
 
 // get all jobs
 const getJobs = async (req, res) => {
     try {
-        const jobs = await Job.find();
+        const jobs = await Job.find().populate('applications');
 
         res.status(200).json({
             success: true,
