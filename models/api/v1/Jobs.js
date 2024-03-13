@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const JobApplication = require('./JobApplication');
 
 const JobSchema = new Schema({
     title : {
@@ -50,6 +51,10 @@ const JobSchema = new Schema({
         type: Array,
         required: true
     },
+    applications: [{
+        type: Schema.Types.ObjectId,
+        ref: 'JobApplication'
+    }]
 });
 
 const Job = mongoose.model('Job', JobSchema);
