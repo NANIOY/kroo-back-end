@@ -24,7 +24,11 @@ const UserSchema = new Schema({
     crewData: {
         type: Schema.Types.ObjectId,
         ref: 'CrewData'
-    }
+    },
+    applications: [{
+        type: Schema.Types.ObjectId,
+        ref: 'JobApplication'
+    }]
 });
 
 const User = mongoose.model('User', UserSchema);
