@@ -18,6 +18,12 @@ const applyJob = async (req, res) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
+        // check if user has already applied for job
+        const applicationExists = await JobApplication.findOne({ job: jobId, user: userId });
+        if (applicationExists) {
+            return res.status(400).json({ message: 'You have already applied for this job' });
+        }
+
         // create new application
         const application = new JobApplication({
             job: jobId,
@@ -29,6 +35,7 @@ const applyJob = async (req, res) => {
         // save job application
         await application.save();
 
+        // add application to job
         job.applications.push(application);
         await job.save();
 
