@@ -1,7 +1,5 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
-const User = require('./User');
-const Job = require('./Jobs');
 
 const JobApplicationSchema = new Schema({
     job: {
@@ -14,6 +12,15 @@ const JobApplicationSchema = new Schema({
         ref: 'User',
         required: true
     },
+    date: {
+        type: Date,
+        default: Date.now
+    },
+    status: {
+        type: String,
+        enum: ['pending', 'accepted', 'rejected'],
+        default: 'pending'
+    }
 });
 
 const JobApplication = mongoose.model('Application', JobApplicationSchema);

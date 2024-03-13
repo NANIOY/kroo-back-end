@@ -22,6 +22,8 @@ const applyJob = async (req, res) => {
         const application = new JobApplication({
             job: jobId,
             user: userId,
+            date: new Date(),
+            status: 'pending'
         });
 
         // save job application
