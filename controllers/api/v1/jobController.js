@@ -4,7 +4,10 @@ const JobApplication = require('../../../models/api/v1/JobApplication');
 // get all jobs
 const getJobs = async (req, res) => {
     try {
-        const jobs = await Job.find().populate('applications');
+        const jobs = await Job.find().populate({
+            path: 'applications',
+            select: '-job -__v' // exclude 'job' and '__v'
+        });
 
         res.status(200).json({
             success: true,
