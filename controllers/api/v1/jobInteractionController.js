@@ -29,9 +29,14 @@ const applyJob = async (req, res) => {
         // save job application
         await application.save();
 
+        job.applications.push(application);
+        await job.save();
+
+        const populatedJob = await Job.findById(jobId).populate('applications');
+
         // NOTIFY BUSINESS OF APPLICATION DEPENDING ON NOTIFICATION PREFERENCE
 
-        res.status(201).json({ message: 'Job application submitted successfully' });
+        res.status(201).json({ message: 'Job application submitted successfully' , job: populatedJob});
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });
