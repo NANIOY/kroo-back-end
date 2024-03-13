@@ -1,5 +1,5 @@
 const Job = require('../../../models/api/v1/Jobs');
-const Application = require('../../../models/api/v1/Application');
+const JobApplication = require('../../../models/api/v1/JobApplication');
 
 // apply for job
 const applyJob = async (req, res) => {
@@ -19,7 +19,7 @@ const applyJob = async (req, res) => {
         }
 
         // create new application
-        const application = new Application({
+        const application = new JobApplication({
             job: jobId,
             user: userId,
         });

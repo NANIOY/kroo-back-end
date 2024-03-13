@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const User = require('./User');
 const Job = require('./Jobs');
 
-const ApplicationSchema = new Schema({
+const JobApplicationSchema = new Schema({
     job: {
         type: Schema.Types.ObjectId,
         ref: 'Job',
@@ -16,6 +16,6 @@ const ApplicationSchema = new Schema({
     },
 });
 
-const Application = mongoose.model('Application', ApplicationSchema);
+const JobApplication = mongoose.model('Application', JobApplicationSchema);
 
-module.exports = Application;
+module.exports = JobApplication;
