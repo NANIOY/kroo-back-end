@@ -3,6 +3,7 @@ require('dotenv').config();
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
+const cookieParser = require('cookie-parser');
 
 // create express app
 const app = express();
@@ -11,6 +12,7 @@ const port = process.env.PORT || 3000;
 // middleware
 app.use(cors());
 app.use(express.json());
+app.use(cookieParser());
 
 // connect to database
 mongoose.connect(process.env.MONGODB, {
@@ -26,6 +28,7 @@ db.once('open', () => {
 
 // routes
 const jobsRouter = require('./routes/api/v1/jobs');
+const jobInteractionRouter = require('./routes/api/v1/jobInteraction');
 const usersRouter = require('./routes/api/v1/user');
 const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
@@ -34,6 +37,7 @@ const authRouter = require('./routes/api/v1/auth');
 
 // route handlers
 app.use('/api/v1/jobs', jobsRouter);
+app.use('/api/v1/jobInteraction', jobInteractionRouter);
 app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/crew', crewRouter);
 app.use('/api/v1/business', businessRouter);
