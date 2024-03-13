@@ -3,14 +3,8 @@ const Job = require('../../../models/api/v1/Jobs');
 // apply for job
 const applyJob = async (req, res) => {
     try {
-        console.log('Request Params:', req.params);
-        console.log('Request User:', req.user);
-
         const { jobId } = req.params;
         const userId = req.user.userId;
-
-        console.log('Job ID:', jobId);
-        console.log('User ID:', userId);
 
         // check if jobId is provided
         if (!jobId) {
