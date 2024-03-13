@@ -1,5 +1,4 @@
 const Job = require('../../../models/api/v1/Jobs');
-const JobApplication = require('../../../models/api/v1/JobApplication');
 
 // get all jobs
 const getJobs = async (req, res) => {
