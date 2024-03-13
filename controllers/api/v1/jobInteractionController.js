@@ -1,5 +1,6 @@
 const Job = require('../../../models/api/v1/Jobs');
 const JobApplication = require('../../../models/api/v1/JobApplication');
+const {User} = require('../../../models/api/v1/User');
 
 // apply for job
 const applyJob = async (req, res) => {
@@ -38,6 +39,11 @@ const applyJob = async (req, res) => {
         // add application to job
         job.applications.push(application);
         await job.save();
+
+        // find user
+        const user = await User.findById(userId);
+        user.applications.push(application);
+        await user.save();
 
         const populatedJob = await Job.findById(jobId).populate('applications');
 
