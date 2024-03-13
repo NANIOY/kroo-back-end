@@ -5,7 +5,7 @@ const { User } = require('../../../models/api/v1/User');
 // function to handle user login
 const login = async (req, res) => {
     try {
-        const { email, password } = req.body;
+        const { email, password, rememberMe } = req.body;
 
         // check if email and password are provided
         if (!email || !password) {
@@ -24,10 +24,16 @@ const login = async (req, res) => {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
-        // generate token
-        const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        // generate regular session token
+        const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
 
-        res.status(200).json({ message: 'Login successful', data: { token } });
+        // generate long-lived token if rememberMe is true
+        let rememberMeToken = null;
+        if (rememberMe) {
+            rememberMeToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '365d' });
+        }
+
+        res.status(200).json({ message: 'Login successful', data: { sessionToken, rememberMeToken } });
     } catch (error) {
         console.error('Error logging in user:', error);
         res.status(500).json({ message: 'Internal Server Error' });
