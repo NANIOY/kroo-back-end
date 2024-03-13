@@ -23,6 +23,6 @@ const JobApplicationSchema = new Schema({
     }
 });
 
-const JobApplication = mongoose.model('Application', JobApplicationSchema);
+const JobApplication = mongoose.model('JobApplication', JobApplicationSchema);
 
 module.exports = JobApplication;
