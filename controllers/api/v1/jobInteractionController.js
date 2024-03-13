@@ -1,4 +1,5 @@
 const Job = require('../../../models/api/v1/Jobs');
+const Application = require('../../../models/api/v1/Application');
 
 // apply for job
 const applyJob = async (req, res) => {
@@ -17,9 +18,14 @@ const applyJob = async (req, res) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
+        // create new application
+        const application = new Application({
+            job: jobId,
+            user: userId,
+        });
+
         // save job application
-        job.applications.push({ user: userId });
-        await job.save();
+        await application.save();
 
         // NOTIFY BUSINESS OF APPLICATION DEPENDING ON NOTIFICATION PREFERENCE
 
