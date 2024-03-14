@@ -50,38 +50,31 @@ const createJob = async (req, res) => {
     console.log('Request body:', req.body);
 
     try {
-        const {
-            title,
-            company,
-            description,
-            wage,
-            date,
-            time,
-            skills,
-            jobFunction,
-            location,
-            production_type,
-            union_status,
-            attachments,
-            cluster_name
-        } = req.body;
+        const propertiesToExtract = [
+            'title',
+            'company',
+            'description',
+            'wage',
+            'date',
+            'time',
+            'skills',
+            'jobFunction',
+            'location',
+            'production_type',
+            'union_status',
+            'attachments',
+        ];
+
+        // extract properties from request body
+        const jobData = {};
+        propertiesToExtract.forEach(property => {
+            if (req.body[property]) {
+                jobData[property] = req.body[property];
+            }
+        });
 
         // create new job
-        const newJob = new Job({
-            title,
-            company,
-            description,
-            wage,
-            date,
-            time,
-            skills,
-            jobFunction,
-            location,
-            production_type,
-            union_status,
-            attachments,
-            cluster_name
-        });
+        const newJob = new Job(jobData);
 
         // save new job to database
         await newJob.save();
