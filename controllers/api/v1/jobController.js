@@ -1,4 +1,5 @@
 const Job = require('../../../models/api/v1/Jobs');
+const Business = require('../../../models/api/v1/Business');
 
 // get all jobs
 const getJobs = async (req, res) => {
@@ -63,6 +64,7 @@ const createJob = async (req, res) => {
             'production_type',
             'union_status',
             'attachments',
+            'businessId'
         ];
 
         // extract properties from request body
@@ -72,6 +74,28 @@ const createJob = async (req, res) => {
                 jobData[property] = req.body[property];
             }
         });
+
+        
+        // check if businessId is provided
+        const { businessId } = req.body;
+        if (!businessId) {
+            return res.status(400).json({
+                success: false,
+                message: 'Business ID is required.'
+            });
+        }
+
+        // check if business exists
+        const business = await Business.findById(businessId);
+        if (!business) {
+            return res.status(404).json({
+                success: false,
+                message: 'Business not found.'
+            });
+        }
+
+        // add business to job data
+        jobData.business = businessId;
 
         // create new job
         const newJob = new Job(jobData);
