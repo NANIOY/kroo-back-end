@@ -56,6 +56,44 @@ const applyJob = async (req, res) => {
     }
 };
 
+// delete job application
+const deleteJobApplication = async (req, res) => {
+    try {
+        const { applicationId } = req.params;
+        const userId = req.user.userId;
+
+        // Check if application ID is provided
+        if (!applicationId) {
+            return res.status(400).json({ message: 'Application ID is required' });
+        }
+
+        // Find the job application by ID
+        const application = await JobApplication.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ message: 'Job application not found' });
+        }
+
+        // Verify if the user owns the application
+        if (application.user.toString() !== userId) {
+            return res.status(403).json({ message: 'You are not authorized to delete this application' });
+        }
+
+        // Delete the application from the JobApplication model
+        await JobApplication.findByIdAndDelete(applicationId);
+
+        // Delete the application from the associated user's applications field
+        const user = await User.findById(userId);
+        user.applications.pull(applicationId); // Remove the application from the array
+        await user.save();
+
+        res.status(200).json({ message: 'Job application deleted successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     applyJob,
+    deleteJobApplication
 };
