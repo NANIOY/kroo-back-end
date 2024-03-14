@@ -2,6 +2,7 @@ const Job = require('../../../models/api/v1/Jobs');
 const JobApplication = require('../../../models/api/v1/JobApplication');
 const { User } = require('../../../models/api/v1/User');
 const { sendApplicationMail } = require('./mailController');
+const Business = require('../../../models/api/v1/Business');
 
 // apply for job
 const applyJob = async (req, res) => {
@@ -26,6 +27,12 @@ const applyJob = async (req, res) => {
             return res.status(400).json({ message: 'You have already applied for this job' });
         }
 
+        // find business associated with job
+        const business = await Business.findById(job.businessId);
+        if (!business) {
+            throw new Error('Business not found');
+        }
+
         // create new application
         const application = new JobApplication({
             job: jobId,
@@ -46,11 +53,12 @@ const applyJob = async (req, res) => {
         user.applications.push(application);
         await user.save();
 
+        // send application email to business
+        await sendApplicationMail(job, user, business);
+
         const populatedJob = await Job.findById(jobId).populate('applications');
 
-        await sendApplicationMail(job, user);
-
-        res.status(201).json({ message: 'Job application submitted successfully' , job: populatedJob});
+        res.status(201).json({ message: 'Job application submitted successfully', job: populatedJob });
     } catch (error) {
         console.error(error);
         res.status(500).json({ message: 'Internal server error' });

@@ -109,10 +109,8 @@ const sendPasswordResetEmail = async (req, res) => {
     }
 };
 
-const sendApplicationMail = async (job, applicant) => {
+const sendApplicationMail = async (job, applicant, business) => {
     try {
-        const businessEmail = 'hello@kroo.site'; // Hardcoded email address for testing
-
         const emailContent = `Hello,
 
 ${applicant.name} has applied for the job "${job.title}".
@@ -122,11 +120,14 @@ Applicant Details:
 - Email: ${applicant.email}
 - Phone: ${applicant.phone}
 - Resume: ${applicant.resumeLink}
-`;
 
-        console.log("Sending email with content:", emailContent); // Log email content
-        await sendEmail(businessEmail, `New Application for ${job.title}`, 'New Job Application', emailContent);
-        console.log(`Application email sent successfully to ${businessEmail}`);
+Please review the application and take appropriate action.
+
+Best regards,
+Your Company`;
+
+        await sendEmail(business.businessInfo.companyEmail, `New Application for ${job.title}`, 'New Job Application', emailContent);
+        console.log(`Application email sent successfully to ${business.businessInfo.companyEmail}`);
     } catch (error) {
         console.error('Error sending application email:', error);
         throw error;
