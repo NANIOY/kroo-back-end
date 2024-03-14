@@ -86,7 +86,7 @@ const sendPasswordResetEmail = async (req, res) => {
 
         const resetToken = generateRandomCode(); // generate reset token
         const resetLink = `http://kroo.site/reset-password?token=${resetToken}`;
-        
+
         // construct email content
         const emailContent = `
             <p>You have requested a password reset. Please click the following link to reset your password:</p>
@@ -100,7 +100,7 @@ const sendPasswordResetEmail = async (req, res) => {
         `;
 
         // send email to user
-        await sendEmail(email, 'Password Reset Request', 'Password Reset Request', emailContent); 
+        await sendEmail(email, 'Password Reset Request', 'Password Reset Request', emailContent);
         console.log(`Password reset email sent to ${email}`);
         res.status(200).json({ message: 'Password reset email sent successfully' });
     } catch (error) {
@@ -109,8 +109,33 @@ const sendPasswordResetEmail = async (req, res) => {
     }
 };
 
+const sendApplicationMail = async (job, applicant) => {
+    try {
+        const businessEmail = 'hello@kroo.site'; // Hardcoded email address for testing
+
+        const emailContent = `Hello,
+
+${applicant.name} has applied for the job "${job.title}".
+
+Applicant Details:
+- Name: ${applicant.name}
+- Email: ${applicant.email}
+- Phone: ${applicant.phone}
+- Resume: ${applicant.resumeLink}
+`;
+
+        console.log("Sending email with content:", emailContent); // Log email content
+        await sendEmail(businessEmail, `New Application for ${job.title}`, 'New Job Application', emailContent);
+        console.log(`Application email sent successfully to ${businessEmail}`);
+    } catch (error) {
+        console.error('Error sending application email:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     sendEmailToEmployees,
     sendInvite,
-    sendPasswordResetEmail
+    sendPasswordResetEmail,
+    sendApplicationMail
 };

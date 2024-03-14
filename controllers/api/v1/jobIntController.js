@@ -1,6 +1,7 @@
 const Job = require('../../../models/api/v1/Jobs');
 const JobApplication = require('../../../models/api/v1/JobApplication');
-const {User} = require('../../../models/api/v1/User');
+const { User } = require('../../../models/api/v1/User');
+const { sendApplicationMail } = require('./mailController');
 
 // apply for job
 const applyJob = async (req, res) => {
@@ -47,7 +48,7 @@ const applyJob = async (req, res) => {
 
         const populatedJob = await Job.findById(jobId).populate('applications');
 
-        // NOTIFY BUSINESS OF APPLICATION DEPENDING ON NOTIFICATION PREFERENCE
+        await sendApplicationMail(job, user);
 
         res.status(201).json({ message: 'Job application submitted successfully' , job: populatedJob});
     } catch (error) {
@@ -62,28 +63,23 @@ const deleteJobApplication = async (req, res) => {
         const { applicationId } = req.params;
         const userId = req.user.userId;
 
-        // Check if application ID is provided
         if (!applicationId) {
             return res.status(400).json({ message: 'Application ID is required' });
         }
 
-        // Find the job application by ID
         const application = await JobApplication.findById(applicationId);
         if (!application) {
             return res.status(404).json({ message: 'Job application not found' });
         }
 
-        // Verify if the user owns the application
         if (application.user.toString() !== userId) {
             return res.status(403).json({ message: 'You are not authorized to delete this application' });
         }
 
-        // Delete the application from the JobApplication model
         await JobApplication.findByIdAndDelete(applicationId);
 
-        // Delete the application from the associated user's applications field
         const user = await User.findById(userId);
-        user.applications.pull(applicationId); // Remove the application from the array
+        user.applications.pull(applicationId);
         await user.save();
 
         res.status(200).json({ message: 'Job application deleted successfully' });
