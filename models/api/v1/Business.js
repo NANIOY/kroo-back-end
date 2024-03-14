@@ -56,7 +56,11 @@ const BusinessSchema = new Schema({
             enum: [1, 2, 3, 4, 5, 6]
         }
     },
-    invitedEmployees: [EmployeeSchema]
+    invitedEmployees: [EmployeeSchema],
+    linkedJobs: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Job'
+    }]
 });
 
 const Business = mongoose.model('Business', BusinessSchema);

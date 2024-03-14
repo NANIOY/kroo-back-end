@@ -102,6 +102,10 @@ const createJob = async (req, res) => {
         // save new job to database
         await newJob.save();
 
+        // add job to business
+        business.linkedJobs.push(newJob._id);
+        await business.save();
+
         res.status(201).json({
             success: true,
             message: 'Job created successfully.',
