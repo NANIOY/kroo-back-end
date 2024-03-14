@@ -28,7 +28,7 @@ db.once('open', () => {
 
 // routes
 const jobsRouter = require('./routes/api/v1/jobs');
-const jobInteractionRouter = require('./routes/api/v1/jobInteraction');
+const jobIntRouter = require('./routes/api/v1/jobInt');
 const usersRouter = require('./routes/api/v1/user');
 const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
@@ -37,7 +37,7 @@ const authRouter = require('./routes/api/v1/auth');
 
 // route handlers
 app.use('/api/v1/jobs', jobsRouter);
-app.use('/api/v1/jobInteraction', jobInteractionRouter);
+app.use('/api/v1/jobInt', jobIntRouter);
 app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/crew', crewRouter);
 app.use('/api/v1/business', businessRouter);
