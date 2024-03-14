@@ -7,9 +7,9 @@ const JobSchema = new Schema({
         type: String,
         required: true
     },
-    company : {
-        type: String,
-        required: true
+    businessId: {
+        type: Schema.Types.ObjectId,
+        ref: 'Business'
     },
     description : {
         type: String,
@@ -54,11 +54,7 @@ const JobSchema = new Schema({
     applications: [{
         type: Schema.Types.ObjectId,
         ref: 'JobApplication'
-    }],
-    businessId: {
-        type: Schema.Types.ObjectId,
-        ref: 'Business'
-    }
+    }]
 });
 
 const Job = mongoose.model('Job', JobSchema);

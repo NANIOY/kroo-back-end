@@ -53,7 +53,6 @@ const createJob = async (req, res) => {
     try {
         const propertiesToExtract = [
             'title',
-            'company',
             'description',
             'wage',
             'date',
