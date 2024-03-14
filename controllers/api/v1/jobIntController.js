@@ -3,12 +3,13 @@ const JobApplication = require('../../../models/api/v1/JobApplication');
 const { User } = require('../../../models/api/v1/User');
 const { sendApplicationMail } = require('./mailController');
 const Business = require('../../../models/api/v1/Business');
+const jwt = require('jsonwebtoken');
 
 // apply for job
 const applyJob = async (req, res) => {
     try {
         const { jobId } = req.params;
-        const userId = req.user.userId;
+        const userId = req.user.userId;        
 
         // check if jobId is provided
         if (!jobId) {
@@ -19,6 +20,21 @@ const applyJob = async (req, res) => {
         const job = await Job.findById(jobId);
         if (!job) {
             return res.status(404).json({ message: 'Job not found' });
+        }
+
+        // extract JWT token from Authorization header
+        const authHeader = req.headers.authorization;
+        if (!authHeader) {
+            return res.status(401).json({ message: 'Authorization header is missing' });
+        }
+        const token = authHeader;
+
+        // decode the token to get user ID
+        const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
+
+        // verify that the user ID from the token matches the one in the request
+        if (userId !== decodedToken.userId) {
+            return res.status(401).json({ message: 'Unauthorized access' });
         }
 
         // check if user has already applied for job

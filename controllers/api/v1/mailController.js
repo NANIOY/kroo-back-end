@@ -109,23 +109,26 @@ const sendPasswordResetEmail = async (req, res) => {
     }
 };
 
-const sendApplicationMail = async (job, applicant, business) => {
+const sendApplicationMail = async (job, user, business) => {
     try {
-        const emailContent = `Hello,
+        // Ensure user details are available
+        if (!user || !user.username || !user.email) {
+            throw new Error('User details are missing or incomplete');
+        }
 
-${applicant.name} has applied for the job "${job.title}".
+        // Construct email content
+        const emailContent = `
+            Hello ${business.businessInfo.companyName},<br><br>
 
-Applicant Details:
-- Name: ${applicant.name}
-- Email: ${applicant.email}
-- Phone: ${applicant.phone}
-- Resume: ${applicant.resumeLink}
+            ${user.username} has applied for the job "${job.title}".<br><br>
 
-Please review the application and take appropriate action.
+            You can review your applications at ${job.link}.<br><br>
 
-Best regards,
-Your Company`;
+            Kind regards,<br>
+            kroo
+        `;
 
+        // Send email
         await sendEmail(business.businessInfo.companyEmail, `New Application for ${job.title}`, 'New Job Application', emailContent);
         console.log(`Application email sent successfully to ${business.businessInfo.companyEmail}`);
     } catch (error) {
