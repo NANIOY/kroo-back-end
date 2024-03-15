@@ -5,6 +5,47 @@ const { sendApplicationMail } = require('./mailController');
 const Business = require('../../../models/api/v1/Business');
 const jwt = require('jsonwebtoken');
 
+// get all applications
+const getApplications = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate('userJobs.applications');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const applications = user.userJobs.applications;
+        res.status(200).json({ applications });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// get job application by ID
+const getJobApplicationById = async (req, res) => {
+    try {
+        const { applicationId } = req.params;
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate('userJobs.applications');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const application = user.userJobs.applications.find(app => app._id.toString() === applicationId);
+        if (!application) {
+            return res.status(404).json({ message: 'Job application not found' });
+        }
+
+        res.status(200).json({ application });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 // apply for job
 const applyJob = async (req, res) => {
     try {
@@ -179,6 +220,8 @@ const deleteSavedJob = async (req, res) => {
 };
 
 module.exports = {
+    getApplications,
+    getJobApplicationById,
     applyJob,
     deleteJobApplication,
     saveJob,

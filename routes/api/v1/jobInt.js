@@ -3,6 +3,12 @@ const router = express.Router();
 const authenticate = require('../../../middlewares/authenticate');
 const jobIntController = require('../../../controllers/api/v1/jobIntController');
 
+// GET all applications
+router.get('/applications', authenticate, jobIntController.getApplications);
+
+// GET application by ID
+router.get('/applications/:applicationId', authenticate, jobIntController.getJobApplicationById);
+
 // POST apply for job
 router.post('/:jobId/apply', authenticate, jobIntController.applyJob);
 
