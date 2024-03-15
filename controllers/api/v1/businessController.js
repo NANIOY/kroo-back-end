@@ -67,6 +67,10 @@ const createBusiness = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        if (user.businessData) {
+            return res.status(400).json({ message: 'User already has a linked business' });
+        }
+
         // check if user's role is business
         if (user.role !== 'business') {
             return res.status(403).json({ message: 'Unauthorized' });
