@@ -63,7 +63,8 @@ const createJob = async (req, res) => {
             'production_type',
             'union_status',
             'attachments',
-            'businessId'
+            'businessId',
+            'url'
         ];
 
         // extract properties from request body
@@ -98,6 +99,11 @@ const createJob = async (req, res) => {
 
         // create new job
         const newJob = new Job(jobData);
+
+        // generate unique URL for job
+        const jobId = newJob._id.toString();
+        const jobUrl = `http://kroo.site/jobs/${jobId}`; // CHANGE TO HTTPS EVENTUALLY
+        newJob.url = jobUrl;
 
         // save new job to database
         await newJob.save();

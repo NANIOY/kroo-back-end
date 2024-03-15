@@ -122,7 +122,7 @@ const sendApplicationMail = async (job, user, business) => {
 
             ${user.username} has applied for the job "${job.title}".<br><br>
 
-            You can review your applications at http://kroo.site/jobs/id.<br><br>
+            You can review your applications at ${job.url}.<br><br>
 
             Kind regards,<br>
             kroo

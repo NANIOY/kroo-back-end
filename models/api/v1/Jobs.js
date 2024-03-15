@@ -54,7 +54,12 @@ const JobSchema = new Schema({
     applications: [{
         type: Schema.Types.ObjectId,
         ref: 'JobApplication'
-    }]
+    }],
+    url: {
+        type: String,
+        required: true,
+        unique: true
+    }
 });
 
 const Job = mongoose.model('Job', JobSchema);
