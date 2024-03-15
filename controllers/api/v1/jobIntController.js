@@ -158,6 +158,47 @@ const deleteJobApplication = async (req, res) => {
     }
 };
 
+// get all saved jobs
+const getSavedJobs = async (req, res) => {
+    try {
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate('userJobs.saved_jobs');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const savedJobs = user.userJobs.saved_jobs;
+        res.status(200).json({ savedJobs });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
+// get saved job by ID
+const getSavedJobById = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate('userJobs.saved_jobs');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const savedJob = user.userJobs.saved_jobs.find(job => job._id.toString() === jobId);
+        if (!savedJob) {
+            return res.status(404).json({ message: 'Saved job not found' });
+        }
+
+        res.status(200).json({ savedJob });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 // save job to user
 const saveJob = async (req, res) => {
     try {
@@ -224,6 +265,8 @@ module.exports = {
     getJobApplicationById,
     applyJob,
     deleteJobApplication,
+    getSavedJobs,
+    getSavedJobById,
     saveJob,
     deleteSavedJob
 };

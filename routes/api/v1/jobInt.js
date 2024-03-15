@@ -15,6 +15,12 @@ router.post('/:jobId/apply', authenticate, jobIntController.applyJob);
 // DELETE delete job application
 router.delete('/:applicationId', authenticate, jobIntController.deleteJobApplication);
 
+// GET saved jobs
+router.get('/saved', authenticate, jobIntController.getSavedJobs);
+
+// GET saved job by ID
+router.get('/saved/:jobId', authenticate, jobIntController.getSavedJobById);
+
 // POST save job
 router.post('/:jobId/save', authenticate, jobIntController.saveJob);
 
