@@ -99,12 +99,16 @@ const deleteJobApplication = async (req, res) => {
         if (application.user.toString() !== userId) {
             return res.status(403).json({ message: 'You are not authorized to delete this application' });
         }
-
-        await JobApplication.findByIdAndDelete(applicationId);
+        
+        const job = await Job.findById(application.job);
+        job.applications.pull(applicationId);
+        await job.save();
 
         const user = await User.findById(userId);
         user.applications.pull(applicationId);
         await user.save();
+
+        await JobApplication.findByIdAndDelete(applicationId);
 
         res.status(200).json({ message: 'Job application deleted successfully' });
     } catch (error) {
