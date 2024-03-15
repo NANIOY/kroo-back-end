@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 const JobApplication = require('./JobApplication');
 
 const JobSchema = new Schema({
-    title : {
+    title: {
         type: String,
         required: true
     },
@@ -11,43 +11,43 @@ const JobSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'Business'
     },
-    description : {
+    description: {
         type: String,
         required: true
     },
-    wage : {
+    wage: {
         type: Number,
         required: true
     },
-    date : {
+    date: {
         type: Date,
         required: true
     },
-    time : {
+    time: {
         type: String,
         required: true
     },
-    skills : {
+    skills: {
         type: Array,
         required: true
     },
-    jobFunction : {
+    jobFunction: {
         type: String,
         required: true
     },
-    location : {
+    location: {
         type: String,
         required: true
     },
-    production_type : {
+    production_type: {
         type: String,
         required: true
     },
-    union_status : {
+    union_status: {
         type: String,
         required: true
     },
-    attachments : {
+    attachments: {
         type: Array,
         required: true
     },
