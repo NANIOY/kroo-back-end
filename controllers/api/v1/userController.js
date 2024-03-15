@@ -54,6 +54,11 @@ const createUser = async (req, res) => {
             return res.status(400).json({ message: 'All fields are required' });
         }
 
+        // check if role is valid
+        if (!['crew', 'business'].includes(role)) {
+            return res.status(400).json({ message: 'Invalid role' });
+        }
+
         // check if email already exists
         const existingUser = await User.findOne({ email });
         if (existingUser) {
