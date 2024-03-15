@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 const CrewData = require('./Crew');
+const Business = require('./Business');
 
 // schema for user
 const UserSchema = new Schema({
@@ -19,11 +20,15 @@ const UserSchema = new Schema({
     role: {
         type: String,
         required: true,
-        default: 'user'
+        enum: ['crew', 'business'],
     },
     crewData: {
         type: Schema.Types.ObjectId,
         ref: 'CrewData'
+    },
+    businessData: {
+        type: Schema.Types.ObjectId,
+        ref: 'Business'
     },
     userJobs: {
         applications: [{
@@ -41,5 +46,6 @@ const User = mongoose.model('User', UserSchema);
 
 module.exports = {
     User,
-    CrewData
+    CrewData,
+    Business
 };
