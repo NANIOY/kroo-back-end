@@ -9,7 +9,7 @@ const jwt = require('jsonwebtoken');
 const applyJob = async (req, res) => {
     try {
         const { jobId } = req.params;
-        const userId = req.user.userId;        
+        const userId = req.user.userId;
 
         // check if jobId is provided
         if (!jobId) {
@@ -66,7 +66,7 @@ const applyJob = async (req, res) => {
 
         // find user
         const user = await User.findById(userId);
-        user.applications.push(application);
+        user.userJobs.applications.push(application);
         await user.save();
 
         // send application email to business
@@ -99,13 +99,13 @@ const deleteJobApplication = async (req, res) => {
         if (application.user.toString() !== userId) {
             return res.status(403).json({ message: 'You are not authorized to delete this application' });
         }
-        
+
         const job = await Job.findById(application.job);
         job.applications.pull(applicationId);
         await job.save();
 
         const user = await User.findById(userId);
-        user.applications.pull(applicationId);
+        user.userJobs.applications.pull(applicationId);
         await user.save();
 
         await JobApplication.findByIdAndDelete(applicationId);
