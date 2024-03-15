@@ -200,6 +200,17 @@ const deleteBusiness = async (req, res) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
+         // remove business ID from linked user
+         const linkedUser = await User.findOneAndUpdate(
+            { businessData: businessId },
+            { $unset: { businessData: 1 } },
+            { new: true }
+        );
+
+        if (!linkedUser) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
         res.status(200).json({ message: 'Business deleted successfully' });
     } catch (error) {
         if (error.name === 'CastError') {
