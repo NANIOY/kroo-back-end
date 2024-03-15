@@ -4,6 +4,7 @@ const { User } = require('../../../models/api/v1/User');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// general email send
 const sendEmail = async (to, subject, text, htmlContent) => {
     try {
         const msg = {
@@ -21,12 +22,14 @@ const sendEmail = async (to, subject, text, htmlContent) => {
     }
 };
 
+// generate random code
 const generateRandomCode = () => {
     const uuid = uuidv4(); // generate a UUID
     const truncatedCode = uuid.replace(/-/g, '').slice(0, 8); // remove hyphens and take first 8 characters
     return truncatedCode;
 };
 
+// send email to employees
 const sendEmailToEmployees = async (employees, business) => {
     try {
         // send email to each employee
@@ -42,6 +45,7 @@ const sendEmailToEmployees = async (employees, business) => {
     }
 };
 
+// send separate invite
 const sendInvite = async (req, res) => {
     try {
         const businessId = req.params.id; // extracting business ID from URL params
@@ -74,6 +78,7 @@ const sendInvite = async (req, res) => {
     }
 };
 
+// send join request
 const sendJoinRequest = async (business) => {
     try {
         if (!business) {
@@ -92,7 +97,7 @@ const sendJoinRequest = async (business) => {
     }
 };
 
-
+// send password reset email
 const sendPasswordResetEmail = async (req, res) => {
     try {
         const { email } = req.body;
@@ -128,6 +133,7 @@ const sendPasswordResetEmail = async (req, res) => {
     }
 };
 
+// send application email
 const sendApplicationMail = async (job, user, business) => {
     try {
         // Ensure user details are available
@@ -156,10 +162,35 @@ const sendApplicationMail = async (job, user, business) => {
     }
 };
 
+// send job offer email
+const sendJobOfferEmail = async (to, user, business) => {
+    try {
+        console.log('User object:', user);
+        const emailContent = `
+            Hello ${user.username},<br><br>
+        
+            You've received a job offer from ${business.name}. <br><br>
+        
+            You can view the job offer at http://kroo.site/tracker.<br><br>
+        
+            Kind regards,<br>
+            kroo
+        `;
+
+        await sendEmail(to, `Job Offer from ${business.name}`, emailContent, emailContent); // pass emailContent as both text and HTML
+
+        console.log('Job offer email sent successfully');
+    } catch (error) {
+        console.error('Error sending job offer email:', error);
+        throw error;
+    }
+};
+
 module.exports = {
     sendEmailToEmployees,
     sendInvite,
     sendJoinRequest,
     sendPasswordResetEmail,
-    sendApplicationMail
+    sendApplicationMail,
+    sendJobOfferEmail
 };

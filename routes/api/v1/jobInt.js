@@ -27,4 +27,7 @@ router.post('/:jobId/save', authenticate, jobIntController.saveJob);
 // DELETE saved job
 router.delete('/:jobId/unsave', authenticate, jobIntController.deleteSavedJob);
 
+// POST offer job
+router.post('/:jobId/offer', authenticate, jobIntController.offerJob);
+
 module.exports = router;
