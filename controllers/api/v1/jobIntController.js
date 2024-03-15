@@ -117,7 +117,39 @@ const deleteJobApplication = async (req, res) => {
     }
 };
 
+// save job to user
+const saveJob = async (req, res) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.user.userId;
+
+        if (!jobId) {
+            return res.status(400).json({ message: 'Job ID is required' });
+        }
+
+        const job = await Job.findById(jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        const isJobAlreadySaved = user.userJobs.saved_jobs.includes(jobId);
+        if (isJobAlreadySaved) {
+            return res.status(400).json({ message: 'Job is already saved' });
+        }
+
+        const user = await User.findById(userId);
+        user.userJobs.saved_jobs.push(jobId);
+        await user.save();
+
+        res.status(200).json({ message: 'Job saved successfully', savedJobId: jobId });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Internal server error' });
+    }
+};
+
 module.exports = {
     applyJob,
-    deleteJobApplication
+    deleteJobApplication,
+    saveJob
 };

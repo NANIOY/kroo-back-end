@@ -9,4 +9,7 @@ router.post('/:jobId/apply', authenticate, jobIntController.applyJob);
 // DELETE delete job application
 router.delete('/:applicationId', authenticate, jobIntController.deleteJobApplication);
 
+// POST save job
+router.post('/:jobId/save', authenticate, jobIntController.saveJob);
+
 module.exports = router;
