@@ -12,4 +12,7 @@ router.delete('/:applicationId', authenticate, jobIntController.deleteJobApplica
 // POST save job
 router.post('/:jobId/save', authenticate, jobIntController.saveJob);
 
+// DELETE saved job
+router.delete('/:jobId/unsave', authenticate, jobIntController.deleteSavedJob);
+
 module.exports = router;
