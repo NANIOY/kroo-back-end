@@ -6,7 +6,7 @@ const EmployeeSchema = new Schema({
     email: String,
     role: {
         type: String,
-        enum: ['Producer', 'Director', 'Editor']
+        enum: ['Producer', 'Editor', 'Audience']
     }
 });
 
