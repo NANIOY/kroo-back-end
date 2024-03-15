@@ -1,6 +1,7 @@
 const Business = require('../../../models/api/v1/Business');
 const { sendEmailToEmployees } = require('./mailController');
 const { User } = require('../../../models/api/v1/User');
+const { sendJoinRequest } = require('./mailController');
 const jwt = require('jsonwebtoken');
 
 // function to validate email format
@@ -79,7 +80,8 @@ const createBusiness = async (req, res) => {
         // check if the company name already exists
         const existingBusiness = await Business.findOne({ name: req.body.name });
         if (existingBusiness) {
-            return res.status(400).json({ message: 'Company name already exists' });
+            await sendJoinRequest(existingBusiness);
+            return res.status(400).json({ message: 'Company name already exists. Join request sent to the existing business.' });
         }
 
         // check if the number of invited employees exceeds the allowed limit
@@ -200,8 +202,8 @@ const deleteBusiness = async (req, res) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-         // remove business ID from linked user
-         const linkedUser = await User.findOneAndUpdate(
+        // remove business ID from linked user
+        const linkedUser = await User.findOneAndUpdate(
             { businessData: businessId },
             { $unset: { businessData: 1 } },
             { new: true }

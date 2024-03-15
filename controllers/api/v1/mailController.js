@@ -74,6 +74,25 @@ const sendInvite = async (req, res) => {
     }
 };
 
+const sendJoinRequest = async (business) => {
+    try {
+        if (!business) {
+            throw new Error('Business not found');
+        }
+
+        const companyEmail = business.businessInfo.companyEmail;
+        const invitationCode = generateRandomCode();
+        const emailContent = `You have received a request to join ${business.name}. Use the invitation code "${invitationCode}" to accept the request.`;
+
+        await sendEmail(companyEmail, 'Join Request', emailContent);
+        console.log('Join request email sent successfully');
+    } catch (error) {
+        console.error('Error sending join request email:', error);
+        throw error;
+    }
+};
+
+
 const sendPasswordResetEmail = async (req, res) => {
     try {
         const { email } = req.body;
@@ -140,6 +159,7 @@ const sendApplicationMail = async (job, user, business) => {
 module.exports = {
     sendEmailToEmployees,
     sendInvite,
+    sendJoinRequest,
     sendPasswordResetEmail,
     sendApplicationMail
 };
