@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const businessController = require('../../../controllers/api/v1/businessController');
+const authenticate = require('../../../middlewares/authenticate');
 
 // GET all businesses
 router.get('/', businessController.getAllBusinesses);
@@ -9,7 +10,7 @@ router.get('/', businessController.getAllBusinesses);
 router.get('/:id', businessController.getBusinessById);
 
 // POST new business
-router.post('/', businessController.createBusiness);
+router.post('/', authenticate, businessController.createBusiness);
 
 // PUT & PATCH update business by ID
 router.put('/:id', businessController.updateBusiness);

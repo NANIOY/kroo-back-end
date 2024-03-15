@@ -1,5 +1,7 @@
 const Business = require('../../../models/api/v1/Business');
 const { sendEmailToEmployees } = require('./mailController');
+const { User } = require('../../../models/api/v1/User');
+const jwt = require('jsonwebtoken');
 
 // function to validate email format
 function isValidEmail(email) {
@@ -56,17 +58,29 @@ const getBusinessById = async (req, res) => {
 // create new business
 const createBusiness = async (req, res) => {
     try {
+        // retrieve user ID from request
+        const userId = req.user.userId;
+
+        // check if user exists
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // check if user's role is business
+        if (user.role !== 'business') {
+            return res.status(403).json({ message: 'Unauthorized' });
+        }
+
         // check if the company name already exists
         const existingBusiness = await Business.findOne({ name: req.body.name });
         if (existingBusiness) {
             return res.status(400).json({ message: 'Company name already exists' });
         }
-        // create a new business instance
-        const newBusiness = new Business(req.body);
 
         // check if the number of invited employees exceeds the allowed limit
         const numberOfEmployees = req.body.invitedEmployees.length;
-        if (numberOfEmployees > newBusiness.paymentInfo.numberOfUsers) {
+        if (numberOfEmployees > req.body.paymentInfo.numberOfUsers) {
             return res.status(400).json({ message: 'Number of invited employees exceeds the allowed limit' });
         }
 
@@ -89,17 +103,21 @@ const createBusiness = async (req, res) => {
             return res.status(400).json({ message: `Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})` });
         }
 
-        // save the new business to the database
+        // create a new business instance
+        const newBusiness = new Business(req.body);
         await newBusiness.save();
+
+        // link business to user
+        user.businessData = newBusiness._id;
+        await user.save();
 
         // send email to invited employees
         await sendEmailToEmployees(req.body.invitedEmployees, newBusiness);
 
         res.status(201).json({ message: 'Business created successfully', data: { business: newBusiness } });
     } catch (error) {
-        console.error('error creating business:', error);
+        console.error('Error creating business:', error);
         if (error.name === 'ValidationError') {
-            // handle validation errors
             return res.status(400).json({ message: error.message });
         }
         res.status(500).json({ message: 'Internal Server Error' });
