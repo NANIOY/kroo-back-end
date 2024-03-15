@@ -2,7 +2,6 @@ const Business = require('../../../models/api/v1/Business');
 const { sendEmailToEmployees } = require('./mailController');
 const { User } = require('../../../models/api/v1/User');
 const { sendJoinRequest } = require('./mailController');
-const jwt = require('jsonwebtoken');
 
 // function to validate email format
 function isValidEmail(email) {
