@@ -3,94 +3,84 @@ const JobApplication = require('../../../models/api/v1/JobApplication');
 const { User } = require('../../../models/api/v1/User');
 const { sendApplicationMail, sendJobOfferEmail } = require('./mailController');
 const Business = require('../../../models/api/v1/Business');
+const { CustomError } = require('../../../middlewares/errorHandler');
 const jwt = require('jsonwebtoken');
 
 // get all applications
-const getApplications = async (req, res) => {
+const getApplications = async (req, res, next) => {
     try {
         const userId = req.user.userId;
 
         const user = await User.findById(userId).populate('userJobs.applications');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
 
         const applications = user.userJobs.applications;
         res.status(200).json({ applications });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // get job application by ID
-const getJobApplicationById = async (req, res) => {
+const getJobApplicationById = async (req, res, next) => {
     try {
         const { applicationId } = req.params;
         const userId = req.user.userId;
 
         const user = await User.findById(userId).populate('userJobs.applications');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
 
         const application = user.userJobs.applications.find(app => app._id.toString() === applicationId);
         if (!application) {
-            return res.status(404).json({ message: 'Job application not found' });
+            throw new CustomError('Job application not found', 404);
         }
 
         res.status(200).json({ application });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // apply for job
-const applyJob = async (req, res) => {
+const applyJob = async (req, res, next) => {
     try {
         const { jobId } = req.params;
         const userId = req.user.userId;
 
-        // check if jobId is provided
         if (!jobId) {
-            return res.status(400).json({ message: 'Job ID is required' });
+            throw new CustomError('Job ID is required', 400);
         }
 
-        // find job by ID
         const job = await Job.findById(jobId);
         if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
+            throw new CustomError('Job not found', 404);
         }
 
-        // extract JWT token from Authorization header
         const authHeader = req.headers.authorization;
         if (!authHeader) {
-            return res.status(401).json({ message: 'Authorization header is missing' });
+            throw new CustomError('Authorization header is missing', 401);
         }
         const token = authHeader;
 
-        // decode the token to get user ID
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
-
-        // verify that the user ID from the token matches the one in the request
         if (userId !== decodedToken.userId) {
-            return res.status(401).json({ message: 'Unauthorized access' });
+            throw new CustomError('Unauthorized access', 401);
         }
 
-        // check if user has already applied for job
         const applicationExists = await JobApplication.findOne({ job: jobId, user: userId });
         if (applicationExists) {
-            return res.status(400).json({ message: 'You have already applied for this job' });
+            throw new CustomError('You have already applied for this job', 400);
         }
 
-        // find business associated with job
         const business = await Business.findById(job.businessId);
         if (!business) {
-            throw new Error('Business not found');
+            throw new CustomError('Business not found', 404);
         }
 
-        // create new application
         const application = new JobApplication({
             job: jobId,
             user: userId,
@@ -98,47 +88,41 @@ const applyJob = async (req, res) => {
             status: 'pending'
         });
 
-        // save job application
         await application.save();
-
-        // add application to job
         job.applications.push(application);
         await job.save();
 
-        // find user
         const user = await User.findById(userId);
         user.userJobs.applications.push(application);
         await user.save();
 
-        // send application email to business
         await sendApplicationMail(job, user, business);
 
         const populatedJob = await Job.findById(jobId).populate('applications');
 
         res.status(201).json({ message: 'Job application submitted successfully', job: populatedJob });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // delete job application
-const deleteJobApplication = async (req, res) => {
+const deleteJobApplication = async (req, res, next) => {
     try {
         const { applicationId } = req.params;
         const userId = req.user.userId;
 
         if (!applicationId) {
-            return res.status(400).json({ message: 'Application ID is required' });
+            throw new CustomError('Application ID is required', 400);
         }
 
         const application = await JobApplication.findById(applicationId);
         if (!application) {
-            return res.status(404).json({ message: 'Job application not found' });
+            throw new CustomError('Job application not found', 404);
         }
 
         if (application.user.toString() !== userId) {
-            return res.status(403).json({ message: 'You are not authorized to delete this application' });
+            throw new CustomError('You are not authorized to delete this application', 403);
         }
 
         const job = await Job.findById(application.job);
@@ -153,75 +137,72 @@ const deleteJobApplication = async (req, res) => {
 
         res.status(200).json({ message: 'Job application deleted successfully' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // get all saved jobs
-const getSavedJobs = async (req, res) => {
+const getSavedJobs = async (req, res, next) => {
     try {
         const userId = req.user.userId;
 
         const user = await User.findById(userId).populate('userJobs.saved_jobs');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
 
         const savedJobs = user.userJobs.saved_jobs;
         res.status(200).json({ savedJobs });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // get saved job by ID
-const getSavedJobById = async (req, res) => {
+const getSavedJobById = async (req, res, next) => {
     try {
         const { jobId } = req.params;
         const userId = req.user.userId;
 
         const user = await User.findById(userId).populate('userJobs.saved_jobs');
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
 
         const savedJob = user.userJobs.saved_jobs.find(job => job._id.toString() === jobId);
         if (!savedJob) {
-            return res.status(404).json({ message: 'Saved job not found' });
+            throw new CustomError('Saved job not found', 404);
         }
 
         res.status(200).json({ savedJob });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // save job to user
-const saveJob = async (req, res) => {
+const saveJob = async (req, res, next) => {
     try {
         const { jobId } = req.params;
         const userId = req.user.userId;
 
         if (!jobId) {
-            return res.status(400).json({ message: 'Job ID is required' });
+            throw new CustomError('Job ID is required', 400);
         }
 
         const job = await Job.findById(jobId);
         if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
+            throw new CustomError('Job not found', 404);
         }
 
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
 
         const isJobAlreadySaved = user.userJobs.saved_jobs.includes(jobId);
         if (isJobAlreadySaved) {
-            return res.status(400).json({ message: 'Job is already saved' });
+            throw new CustomError('Job is already saved', 400);
         }
 
         user.userJobs.saved_jobs.push(jobId);
@@ -229,24 +210,23 @@ const saveJob = async (req, res) => {
 
         res.status(200).json({ message: 'Job saved successfully', savedJobId: jobId });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // delete saved job from user
-const deleteSavedJob = async (req, res) => {
+const deleteSavedJob = async (req, res, next) => {
     try {
         const { jobId } = req.params;
         const userId = req.user.userId;
 
         if (!jobId) {
-            return res.status(400).json({ message: 'Job ID is required' });
+            throw new CustomError('Job ID is required', 400);
         }
 
         const job = await Job.findById(jobId);
         if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
+            throw new CustomError('Job not found', 404);
         }
 
         const user = await User.findById(userId);
@@ -255,13 +235,12 @@ const deleteSavedJob = async (req, res) => {
 
         res.status(200).json({ message: 'Job deleted from saved jobs' });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Internal server error' });
+        next(error);
     }
 };
 
 // offer job
-const offerJob = async (req, res) => {
+const offerJob = async (req, res, next) => {
     try {
         const jobId = req.params.jobId;
         const { email } = req.body;
@@ -273,25 +252,25 @@ const offerJob = async (req, res) => {
         const crewMember = await User.findOne({ email });
 
         if (!loggedInUser) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
 
         if (!job) {
-            return res.status(404).json({ message: 'Job not found' });
+            throw new CustomError('Job not found', 404);
         }
 
         if (!business) {
-            return res.status(404).json({ message: 'Business not found' });
+            throw new CustomError('Business not found', 404);
         }
 
         if (!crewMember) {
             console.error('Crew Member not found:', email);
-            return res.status(404).json({ message: 'Crew member not found' });
+            throw new CustomError('Crew member not found', 404);
         }
 
         if (crewMember.role !== 'crew') {
             console.error('User found, but not a crew member:', email);
-            return res.status(400).json({ message: 'Invalid crew member email' });
+            throw new CustomError('Invalid crew member email', 400);
         }
 
         job.offeredTo = crewMember._id;
@@ -300,8 +279,7 @@ const offerJob = async (req, res) => {
 
         res.status(200).json({ message: 'Job offered successfully', data: { job } });
     } catch (error) {
-        console.error('Error offering job:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 

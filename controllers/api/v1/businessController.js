@@ -2,6 +2,7 @@ const Business = require('../../../models/api/v1/Business');
 const { sendEmailToEmployees } = require('./mailController');
 const { User } = require('../../../models/api/v1/User');
 const { sendJoinRequest } = require('./mailController');
+const { CustomError } = require('../../../middlewares/errorHandler');
 
 // function to validate email format
 function isValidEmail(email) {
@@ -18,209 +19,142 @@ function isValidURL(url) {
 }
 
 // get all businesses
-const getAllBusinesses = async (req, res) => {
+const getAllBusinesses = async (req, res, next) => {
     try {
-        // fetch all businesses
         const businesses = await Business.find();
-
         res.status(200).json({ message: 'Businesses fetched successfully', data: { businesses } });
     } catch (error) {
-        console.error('Error fetching businesses:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 
 // get business by ID
-const getBusinessById = async (req, res) => {
+const getBusinessById = async (req, res, next) => {
     try {
         const businessId = req.params.id;
-
-        // check if business ID is provided
         if (!businessId) {
-            return res.status(400).json({ message: 'Business ID is required' });
+            throw new CustomError('Business ID is required', 400);
         }
-
-        // fetch business by ID
         const business = await Business.findById(businessId);
-
-        // check if business with provided ID exists
         if (!business) {
-            return res.status(404).json({ message: 'Business not found' });
+            throw new CustomError('Business not found', 404);
         }
-
         res.status(200).json({ message: 'Business fetched successfully', data: { business: { name: business.name, ...business._doc } } });
     } catch (error) {
-        console.error('Error fetching business by ID:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 
 // create new business
-const createBusiness = async (req, res) => {
+const createBusiness = async (req, res, next) => {
     try {
-        // retrieve user ID from request
         const userId = req.user.userId;
-
-        // check if user exists
         const user = await User.findById(userId);
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
-
         if (user.businessData) {
-            return res.status(400).json({ message: 'User already has a linked business' });
+            throw new CustomError('User already has a linked business', 400);
         }
-
-        // check if user's role is business
         if (user.role !== 'business') {
-            return res.status(403).json({ message: 'Unauthorized' });
+            throw new CustomError('Unauthorized', 403);
         }
-
-        // check if the company name already exists
         const existingBusiness = await Business.findOne({ name: req.body.name });
         if (existingBusiness) {
             await sendJoinRequest(existingBusiness);
-            return res.status(400).json({ message: 'Company name already exists. Join request sent to the existing business.' });
+            throw new CustomError('Company name already exists. Join request sent to the existing business.', 400);
         }
-
-        // check if the number of invited employees exceeds the allowed limit
         const numberOfEmployees = req.body.invitedEmployees.length;
         if (numberOfEmployees > req.body.paymentInfo.numberOfUsers) {
-            return res.status(400).json({ message: 'Number of invited employees exceeds the allowed limit' });
+            throw new CustomError('Number of invited employees exceeds the allowed limit', 400);
         }
-
-        // validate email format
         if (!isValidEmail(req.body.businessInfo.companyEmail)) {
-            return res.status(400).json({ message: 'Invalid email format' });
+            throw new CustomError('Invalid email format', 400);
         }
-
-        // validate URL format for each extra website
         const extraWebsites = req.body.connectivity.extraWebsites || [];
         for (const website of extraWebsites) {
             if (!isValidURL(website.url)) {
-                return res.status(400).json({ message: 'Invalid URL format' });
+                throw new CustomError('Invalid URL format', 400);
             }
         }
-
-        // set maximum portfolio projects to 20
         const maxPortfolioProjects = 20;
         if (req.body.showProjects.portfolioWork.length > maxPortfolioProjects) {
-            return res.status(400).json({ message: `Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})` });
+            throw new CustomError(`Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})`, 400);
         }
-
-        // create a new business instance
         const newBusiness = new Business(req.body);
         await newBusiness.save();
-
-        // link business to user
         user.businessData = newBusiness._id;
         await user.save();
-
-        // send email to invited employees
         await sendEmailToEmployees(req.body.invitedEmployees, newBusiness);
-
         res.status(201).json({ message: 'Business created successfully', data: { business: newBusiness } });
     } catch (error) {
-        console.error('Error creating business:', error);
-        if (error.name === 'ValidationError') {
-            return res.status(400).json({ message: error.message });
-        }
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 
-// update business
-const updateBusiness = async (req, res) => {
+const updateBusiness = async (req, res, next) => {
     try {
         const businessId = req.params.id;
         const updates = req.body;
-
-        // check if business ID is provided
         if (!businessId) {
-            return res.status(400).json({ message: 'Business ID is required' });
+            throw new CustomError('Business ID is required', 400);
         }
-
-        // find business by ID
         let business = await Business.findById(businessId);
         if (!business) {
-            return res.status(404).json({ message: 'Business not found' });
+            throw new CustomError('Business not found', 404);
         }
-
-        // check if updated business name already exists
         if (updates.name && updates.name !== business.name) {
             const existingName = await Business.findOne({ name: updates.name });
             if (existingName) {
-                return res.status(400).json({ message: 'Business name already exists' });
+                throw new CustomError('Business name already exists', 400);
             }
         }
-
-        // check if updated email already exists
         if (updates.businessInfo && updates.businessInfo.companyEmail &&
             updates.businessInfo.companyEmail !== business.businessInfo.companyEmail) {
             const existingEmail = await Business.findOne({ 'businessInfo.companyEmail': updates.businessInfo.companyEmail });
             if (existingEmail) {
-                return res.status(400).json({ message: 'Email already exists' });
+                throw new CustomError('Email already exists', 400);
             }
         }
-
-        // Update business fields
         Object.keys(updates).forEach(key => {
             if (key !== '_id') {
                 business[key] = updates[key];
             }
         });
-
-        // save updated business
         await business.save();
-
         res.status(200).json({ message: 'Business updated successfully', data: { business } });
     } catch (error) {
-        console.error('Error updating business:', error);
-        if (error.name === 'ValidationError') {
-            // handle validation errors
-            return res.status(400).json({ message: error.message });
-        }
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 
-// delete business
-const deleteBusiness = async (req, res) => {
+const deleteBusiness = async (req, res, next) => {
     try {
         const businessId = req.params.id;
-
-        // check if business ID is provided
         if (!businessId) {
-            return res.status(400).json({ message: 'Business ID is required' });
+            throw new CustomError('Business ID is required', 400);
         }
-
-        // find business by ID and delete it
         const deletedBusiness = await Business.findByIdAndDelete(businessId);
-
         if (!deletedBusiness) {
-            return res.status(404).json({ message: 'Business not found' });
+            throw new CustomError('Business not found', 404);
         }
-
-        // remove business ID from linked user
         const linkedUser = await User.findOneAndUpdate(
             { businessData: businessId },
             { $unset: { businessData: 1 } },
             { new: true }
         );
-
         if (!linkedUser) {
-            return res.status(404).json({ message: 'User not found' });
+            throw new CustomError('User not found', 404);
         }
-
         res.status(200).json({ message: 'Business deleted successfully' });
     } catch (error) {
         if (error.name === 'CastError') {
-            return res.status(400).json({ message: 'Invalid business ID format' });
+            next(new CustomError('Invalid business ID format', 400));
+        } else {
+            next(error);
         }
-        console.error('Error deleting business:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
     }
-}
+};
 
 module.exports = {
     getAllBusinesses,

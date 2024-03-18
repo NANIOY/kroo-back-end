@@ -1,6 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
 const Business = require('../../../models/api/v1/Business');
 const { User } = require('../../../models/api/v1/User');
+const { CustomError } = require('../../../middlewares/errorHandler');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
@@ -18,7 +19,7 @@ const sendEmail = async (to, subject, text, htmlContent) => {
         console.log('Email sent successfully');
     } catch (error) {
         console.error('Error sending email:', error);
-        throw error;
+        throw new CustomError('Error sending email', 500);
     }
 };
 
@@ -41,12 +42,12 @@ const sendEmailToEmployees = async (employees, business) => {
         console.log('Emails sent successfully');
     } catch (error) {
         console.error('Error sending email:', error);
-        throw error;
+        throw new CustomError('Error sending email', 500);
     }
 };
 
 // send separate invite
-const sendInvite = async (req, res) => {
+const sendInvite = async (req, res, next) => {
     try {
         const businessId = req.params.id; // extracting business ID from URL params
         console.log(`Sending invites for business ID: ${businessId}`);
@@ -73,8 +74,7 @@ const sendInvite = async (req, res) => {
 
         res.status(200).json({ message: 'Emails sent successfully' });
     } catch (error) {
-        console.error('Error sending emails:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 
@@ -93,12 +93,12 @@ const sendJoinRequest = async (business) => {
         console.log('Join request email sent successfully');
     } catch (error) {
         console.error('Error sending join request email:', error);
-        throw error;
+        throw new CustomError('Error sending join request email', 500);
     }
 };
 
 // send password reset email
-const sendPasswordResetEmail = async (req, res) => {
+const sendPasswordResetEmail = async (req, res, next) => {
     try {
         const { email } = req.body;
 
@@ -128,8 +128,7 @@ const sendPasswordResetEmail = async (req, res) => {
         console.log(`Password reset email sent to ${email}`);
         res.status(200).json({ message: 'Password reset email sent successfully' });
     } catch (error) {
-        console.error('Error sending password reset email:', error);
-        res.status(500).json({ message: 'Internal Server Error' });
+        next(error);
     }
 };
 
@@ -157,8 +156,7 @@ const sendApplicationMail = async (job, user, business) => {
         await sendEmail(business.businessInfo.companyEmail, `New Application for ${job.title}`, 'New Job Application', emailContent);
         console.log(`Application email sent successfully to ${business.businessInfo.companyEmail}`);
     } catch (error) {
-        console.error('Error sending application email:', error);
-        throw error;
+        throw new CustomError('Error sending application email', 500);
     }
 };
 
@@ -181,8 +179,7 @@ const sendJobOfferEmail = async (to, user, business) => {
 
         console.log('Job offer email sent successfully');
     } catch (error) {
-        console.error('Error sending job offer email:', error);
-        throw error;
+        throw new CustomError('Error sending job offer email', 500);
     }
 };
 

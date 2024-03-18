@@ -1,8 +1,9 @@
 const Job = require('../../../models/api/v1/Jobs');
 const Business = require('../../../models/api/v1/Business');
+const { CustomError } = require('../../../middlewares/errorHandler');
 
 // get all jobs
-const getJobs = async (req, res) => {
+const getJobs = async (req, res, next) => {
     try {
         const jobs = await Job.find().populate({
             path: 'applications',
@@ -17,18 +18,18 @@ const getJobs = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to retrieve jobs.',
-            error: error.message
-        });
+        next(error);
     }
 };
 
 // get job by id
-const getJobById = async (req, res) => {
+const getJobById = async (req, res, next) => {
     try {
         const job = await Job.findById(req.params.id);
+
+        if (!job) {
+            throw new CustomError('Job not found', 404);
+        }
 
         res.status(200).json({
             success: true,
@@ -38,16 +39,12 @@ const getJobById = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to retrieve job.',
-            error: error.message
-        });
+        next(error);
     }
 };
 
 // create job
-const createJob = async (req, res) => {
+const createJob = async (req, res, next) => {
     console.log('Request body:', req.body);
 
     try {
@@ -79,19 +76,13 @@ const createJob = async (req, res) => {
         // check if businessId is provided
         const { businessId } = req.body;
         if (!businessId) {
-            return res.status(400).json({
-                success: false,
-                message: 'Business ID is required.'
-            });
+            throw new CustomError('Business ID is required.', 400);
         }
 
         // check if business exists
         const business = await Business.findById(businessId);
         if (!business) {
-            return res.status(404).json({
-                success: false,
-                message: 'Business not found.'
-            });
+            throw new CustomError('Business not found.', 404);
         }
 
         // add business to job data
@@ -120,16 +111,12 @@ const createJob = async (req, res) => {
             }
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to create job.',
-            error: error.message
-        });
+        next(error);
     }
 };
 
 // update job
-const updateJob = async (req, res) => {
+const updateJob = async (req, res, next) => {
     try {
         const jobId = req.params.id;
         const updateData = req.body;
@@ -141,10 +128,7 @@ const updateJob = async (req, res) => {
         });
 
         if (!updatedJob) {
-            return res.status(404).json({
-                success: false,
-                message: 'Job not found.',
-            });
+            throw new CustomError('Job not found.', 404);
         }
 
         res.status(200).json({
@@ -155,16 +139,12 @@ const updateJob = async (req, res) => {
             },
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to update job.',
-            error: error.message,
-        });
+        next(error);
     }
 };
 
 // delete job
-const deleteJob = async (req, res) => {
+const deleteJob = async (req, res, next) => {
     try {
         const jobId = req.params.id;
 
@@ -172,10 +152,7 @@ const deleteJob = async (req, res) => {
         const deletedJob = await Job.findByIdAndDelete(jobId);
 
         if (!deletedJob) {
-            return res.status(404).json({
-                success: false,
-                message: 'Job not found.',
-            });
+            throw new CustomError('Job not found.', 404);
         }
 
         res.status(200).json({
@@ -186,11 +163,7 @@ const deleteJob = async (req, res) => {
             },
         });
     } catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to delete job.',
-            error: error.message,
-        });
+        next(error);
     }
 };
 
