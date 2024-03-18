@@ -27,6 +27,8 @@ db.once('open', () => {
 });
 
 // routes
+const { errorHandler } = require('./middlewares/errorHandler');
+
 const jobsRouter = require('./routes/api/v1/jobs');
 const jobIntRouter = require('./routes/api/v1/jobInt');
 const usersRouter = require('./routes/api/v1/user');
@@ -36,6 +38,8 @@ const mailRouter = require('./routes/api/v1/mail');
 const authRouter = require('./routes/api/v1/auth');
 
 // route handlers
+app.use(errorHandler);
+
 app.use('/api/v1/jobs', jobsRouter);
 app.use('/api/v1/jobInt', jobIntRouter);
 app.use('/api/v1/user', usersRouter);
