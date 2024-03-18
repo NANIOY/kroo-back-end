@@ -50,37 +50,54 @@ const createBusiness = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const user = await User.findById(userId);
+        
         if (!user) {
             throw new CustomError('User not found', 404);
         }
+
         if (user.businessData) {
             throw new CustomError('User already has a linked business', 400);
         }
+
         if (user.role !== 'business') {
             throw new CustomError('Unauthorized', 403);
         }
+
         const existingBusiness = await Business.findOne({ name: req.body.name });
         if (existingBusiness) {
             await sendJoinRequest(existingBusiness);
             throw new CustomError('Company name already exists. Join request sent to the existing business.', 400);
         }
+
         const numberOfEmployees = req.body.invitedEmployees.length;
         if (numberOfEmployees > req.body.paymentInfo.numberOfUsers) {
             throw new CustomError('Number of invited employees exceeds the allowed limit', 400);
         }
+
         if (!isValidEmail(req.body.businessInfo.companyEmail)) {
             throw new CustomError('Invalid email format', 400);
         }
+
         const extraWebsites = req.body.connectivity.extraWebsites || [];
         for (const website of extraWebsites) {
             if (!isValidURL(website.url)) {
                 throw new CustomError('Invalid URL format', 400);
             }
         }
+
         const maxPortfolioProjects = 20;
         if (req.body.showProjects.portfolioWork.length > maxPortfolioProjects) {
             throw new CustomError(`Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})`, 400);
         }
+
+        if (req.body.connectivity.customUrl) {
+            req.body.connectivity.customUrl = `kroo.site/business/${req.body.connectivity.customUrl}`;
+        } else {
+            // Generate custom URL based on business name
+            const businessName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
+            req.body.connectivity.customUrl = `kroo.site/business/${businessName}`;
+        }
+
         const newBusiness = new Business(req.body);
         await newBusiness.save();
         user.businessData = newBusiness._id;
