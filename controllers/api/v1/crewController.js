@@ -68,8 +68,11 @@ const createCrewData = async (req, res, next) => {
             }
         }
 
-        if (userUrl) {
-            user.userUrl = userUrl;
+        let updatedUserUrl = userUrl;
+
+        if (updatedUserUrl) {
+            updatedUserUrl = `kroo.site/user/${updatedUserUrl}`;
+            user.userUrl = updatedUserUrl;
         }
 
         await user.save();
