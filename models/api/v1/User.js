@@ -22,6 +22,10 @@ const UserSchema = new Schema({
         required: true,
         enum: ['crew', 'business'],
     },
+    userUrl: {
+        type: String,
+        unique: true
+    },    
     crewData: {
         type: Schema.Types.ObjectId,
         ref: 'CrewData'

@@ -56,11 +56,21 @@ const createUser = async (req, res) => {
             return res.status(400).json({ message: 'Email already exists' });
         }
 
+        // generate unique URL for user
+        let userUrl = `kroo.site/user/${username.toLowerCase().replace(/\s/g, '-')}`;
+        let counter = 1;
+        let userWithSameUrl = await User.findOne({ userUrl });
+        while (userWithSameUrl) {
+            userUrl = `kroo.site/user/${username.toLowerCase().replace(/\s/g, '-')}-${counter}`;
+            counter++;
+            userWithSameUrl = await User.findOne({ userUrl });
+        }
+
         // hash the password
         const hashedPassword = await bcrypt.hash(password, saltRounds);
 
         // create new user with hashed password
-        const newUser = new User({ username, email, password: hashedPassword, role });
+        const newUser = new User({ username, email, password: hashedPassword, role, userUrl });
 
         await newUser.save();
 
