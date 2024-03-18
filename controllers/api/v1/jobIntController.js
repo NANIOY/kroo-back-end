@@ -267,7 +267,7 @@ const offerJob = async (req, res, next) => {
             console.error('Crew Member not found:', email);
             throw new CustomError('Crew member not found', 404);
         }
-
+        
         if (crewMember.role !== 'crew') {
             console.error('User found, but not a crew member:', email);
             throw new CustomError('Invalid crew member email', 400);
@@ -275,6 +275,10 @@ const offerJob = async (req, res, next) => {
 
         job.offeredTo = crewMember._id;
         await job.save();
+
+        crewMember.userJobs.offered_jobs.push(job._id);
+        await crewMember.save();
+
         await sendJobOfferEmail(crewMember.email, crewMember, business);
 
         res.status(200).json({ message: 'Job offered successfully', data: { job } });

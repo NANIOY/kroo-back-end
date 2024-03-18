@@ -38,6 +38,10 @@ const UserSchema = new Schema({
         saved_jobs: [{
             type: Schema.Types.ObjectId,
             ref: 'Job'
+        }],
+        offered_jobs: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Job'
         }]
     }
 });
