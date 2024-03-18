@@ -278,6 +278,8 @@ const offerJob = async (req, res, next) => {
 
         crewMember.userJobs.offered_jobs.push(job._id);
         await crewMember.save();
+        business.businessJobs.offeredJobs.push(job._id);
+        await business.save();
 
         await sendJobOfferEmail(crewMember.email, crewMember, business);
 
