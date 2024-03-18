@@ -100,7 +100,7 @@ const createJob = async (req, res, next) => {
         await newJob.save();
 
         // add job to business
-        business.linkedJobs.push(newJob._id);
+        business.businessJobs.linkedJobs.push(newJob._id);
         await business.save();
 
         res.status(201).json({

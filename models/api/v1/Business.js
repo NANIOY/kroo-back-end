@@ -57,10 +57,16 @@ const BusinessSchema = new Schema({
         }
     },
     invitedEmployees: [EmployeeSchema],
-    linkedJobs: [{
-        type: Schema.Types.ObjectId,
-        ref: 'Job'
-    }]
+    businessJobs: {
+        linkedJobs: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Job'
+        }],
+        offeredJobs: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Job'
+        }],
+    }
 });
 
 const Business = mongoose.model('Business', BusinessSchema);
