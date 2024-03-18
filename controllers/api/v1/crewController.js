@@ -35,7 +35,7 @@ const getCrewData = async (req, res, next) => {
 // create crew data by user ID
 const createCrewData = async (req, res, next) => {
     try {
-        const { userId, basicInfo, profileDetails, careerDetails, connectivity } = req.body;
+        const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl } = req.body;
 
         if (!userId) {
             throw new CustomError('User ID is required', 400);
@@ -67,6 +67,12 @@ const createCrewData = async (req, res, next) => {
                 throw new CustomError('Each portfolio work item must have title and type', 400);
             }
         }
+
+        if (userUrl) {
+            user.userUrl = userUrl;
+        }
+
+        await user.save();
 
         const newCrewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity });
         await newCrewData.save();
