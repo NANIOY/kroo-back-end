@@ -35,7 +35,6 @@ const CrewDataSchema = new Schema({
     connectivity: {
         connectSocials: [String],
         extraWebsites: [{ title: String, url: String }],
-        customUrl: String
     }
 });
 
