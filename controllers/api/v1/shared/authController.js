@@ -1,7 +1,12 @@
 const bcrypt = require('bcrypt');
+const saltRounds = 12;
 const jwt = require('jsonwebtoken');
 const { User } = require('../../../../models/api/v1/User');
 const { CustomError } = require('../../../../middlewares/errorHandler');
+
+const hashPassword = async (password) => {
+    return await bcrypt.hash(password, saltRounds);
+}
 
 // handle user login
 const login = async (req, res, next) => {
@@ -65,6 +70,7 @@ const resetPassword = async (req, res, next) => {
 };
 
 module.exports = {
+    hashPassword,
     login,
     resetPassword
 };

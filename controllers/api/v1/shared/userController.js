@@ -1,7 +1,6 @@
 const { User, CrewData } = require('../../../../models/api/v1/User');
 const { CustomError } = require('../../../../middlewares/errorHandler');
-const bcrypt = require('bcrypt');
-const saltRounds = 12;
+const { hashPassword } = require('./authController');
 
 // get all users
 const getAllUsers = async (req, res, next) => {
@@ -67,7 +66,7 @@ const createUser = async (req, res) => {
         }
 
         // hash the password
-        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const hashedPassword = await hashPassword(password);
 
         // create new user with hashed password
         const newUser = new User({ username, email, password: hashedPassword, role, userUrl });
