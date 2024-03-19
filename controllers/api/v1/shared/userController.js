@@ -1,5 +1,5 @@
-const { User, CrewData } = require('../../../models/api/v1/User');
-const { CustomError } = require('../../../middlewares/errorHandler');
+const { User, CrewData } = require('../../../../models/api/v1/User');
+const { CustomError } = require('../../../../middlewares/errorHandler');
 const bcrypt = require('bcrypt');
 const saltRounds = 12;
 

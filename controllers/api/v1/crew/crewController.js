@@ -1,5 +1,5 @@
-const { CrewData, User } = require('../../../models/api/v1/User');
-const { CustomError } = require('../../../middlewares/errorHandler');
+const { CrewData, User } = require('../../../../models/api/v1/User');
+const { CustomError } = require('../../../../middlewares/errorHandler');
 
 // GET all crew data
 const getAllCrewData = async (req, res, next) => {

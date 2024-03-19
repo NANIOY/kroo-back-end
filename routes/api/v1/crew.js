@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const crewController = require('../../../controllers/api/v1/crewController');
+const crewController = require('../../../controllers/api/v1/crew/crewController');
 
 // GET all crew data
 router.get('/', crewController.getAllCrewData);

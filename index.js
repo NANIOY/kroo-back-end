@@ -29,8 +29,14 @@ db.once('open', () => {
 // routes
 const { errorHandler } = require('./middlewares/errorHandler');
 
+    // crew routes
+    const crewJobRouter = require('./routes/api/v1/crew/crewJob');
+    const crewJobIntRouter = require('./routes/api/v1/crew/crewJobInt');
+
+    // business routes
+    const bussJobIntRouter = require('./routes/api/v1/business/bussJobInt');
+
 const jobsRouter = require('./routes/api/v1/jobs');
-const jobIntRouter = require('./routes/api/v1/jobInt');
 const usersRouter = require('./routes/api/v1/user');
 const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
@@ -40,8 +46,14 @@ const authRouter = require('./routes/api/v1/auth');
 // route handlers
 app.use(errorHandler);
 
+    // crew routes
+    app.use('/api/v1/crew/crewJob', crewJobRouter);
+    app.use('/api/v1/crew/crewJobInt', crewJobIntRouter);
+
+    // business routes
+    app.use('/api/v1/business/bussJobInt', bussJobIntRouter);
+    
 app.use('/api/v1/jobs', jobsRouter);
-app.use('/api/v1/jobInt', jobIntRouter);
 app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/crew', crewRouter);
 app.use('/api/v1/business', businessRouter);
