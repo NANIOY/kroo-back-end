@@ -59,7 +59,7 @@ const resetPassword = async (req, res, next) => {
             return res.status(404).json({ message: 'User not found or invalid token' });
         }
 
-        user.password = password;
+        user.password = await hashPassword(password);
         user.resetPasswordToken = undefined;
         await user.save();
 
