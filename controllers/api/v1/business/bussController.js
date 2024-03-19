@@ -1,7 +1,7 @@
 const Business = require('../../../../models/api/v1/Business');
-const { sendEmailToEmployees } = require('../mailController');
+const { sendEmailToEmployees } = require('../shared/mailController');
 const { User } = require('../../../../models/api/v1/User');
-const { sendJoinRequest } = require('../mailController');
+const { sendJoinRequest } = require('../shared/mailController');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 
 // function to validate email format

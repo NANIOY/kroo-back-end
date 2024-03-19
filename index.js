@@ -37,11 +37,11 @@ const { errorHandler } = require('./middlewares/errorHandler');
     const bussJobIntRouter = require('./routes/api/v1/business/bussJobInt');
     const bussJobRouter = require('./routes/api/v1/business/bussJob');
 
-const usersRouter = require('./routes/api/v1/user');
-const crewRouter = require('./routes/api/v1/crew');
-const businessRouter = require('./routes/api/v1/business');
-const mailRouter = require('./routes/api/v1/mail');
-const authRouter = require('./routes/api/v1/auth');
+const usersRouter = require('./routes/api/v1/shared/user');
+const crewRouter = require('./routes/api/v1/crew/crew');
+const businessRouter = require('./routes/api/v1/business/business');
+const mailRouter = require('./routes/api/v1/shared/mail');
+const authRouter = require('./routes/api/v1/shared/auth');
 
 // route handlers
 app.use(errorHandler);

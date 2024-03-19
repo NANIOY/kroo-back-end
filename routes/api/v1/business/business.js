@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const bussController = require('../../../controllers/api/v1/business/bussController');
-const authenticate = require('../../../middlewares/authenticate');
+const bussController = require('../../../../controllers/api/v1/business/bussController');
+const authenticate = require('../../../../middlewares/authenticate');
 
 // GET all businesses
 router.get('/', bussController.getAllBusinesses);

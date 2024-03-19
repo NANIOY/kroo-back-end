@@ -2,7 +2,7 @@ const Job = require('../../../../models/api/v1/Jobs');
 const { User } = require('../../../../models/api/v1/User');
 const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
-const { sendJobOfferEmail } = require('../../../../controllers/api/v1/mailController');
+const { sendJobOfferEmail } = require('../shared/mailController');
 
 // offer job
 const offerJob = async (req, res, next) => {

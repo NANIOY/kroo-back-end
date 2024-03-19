@@ -1,7 +1,7 @@
 const { v4: uuidv4 } = require('uuid');
-const Business = require('../../../models/api/v1/Business');
-const { User } = require('../../../models/api/v1/User');
-const { CustomError } = require('../../../middlewares/errorHandler');
+const Business = require('../../../../models/api/v1/Business');
+const { User } = require('../../../../models/api/v1/User');
+const { CustomError } = require('../../../../middlewares/errorHandler');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 

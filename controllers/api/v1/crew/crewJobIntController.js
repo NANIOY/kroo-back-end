@@ -1,7 +1,7 @@
 const Job = require('../../../../models/api/v1/Jobs');
 const JobApplication = require('../../../../models/api/v1/JobApplication');
 const { User } = require('../../../../models/api/v1/User');
-const { sendApplicationMail } = require('../mailController');
+const { sendApplicationMail } = require('../shared/mailController');
 const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 const jwt = require('jsonwebtoken');
