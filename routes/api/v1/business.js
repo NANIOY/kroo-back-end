@@ -1,22 +1,22 @@
 const express = require('express');
 const router = express.Router();
-const businessController = require('../../../controllers/api/v1/business/businessController');
+const bussController = require('../../../controllers/api/v1/business/bussController');
 const authenticate = require('../../../middlewares/authenticate');
 
 // GET all businesses
-router.get('/', businessController.getAllBusinesses);
+router.get('/', bussController.getAllBusinesses);
 
 // GET business by ID
-router.get('/:id', businessController.getBusinessById);
+router.get('/:id', bussController.getBusinessById);
 
 // POST new business
-router.post('/', authenticate, businessController.createBusiness);
+router.post('/', authenticate, bussController.createBusiness);
 
 // PUT & PATCH update business by ID
-router.put('/:id', businessController.updateBusiness);
-router.patch('/:id', businessController.updateBusiness);
+router.put('/:id', bussController.updateBusiness);
+router.patch('/:id', bussController.updateBusiness);
 
 // DELETE business by ID
-router.delete('/:id', businessController.deleteBusiness);
+router.delete('/:id', bussController.deleteBusiness);
 
 module.exports = router;

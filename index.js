@@ -35,8 +35,9 @@ const { errorHandler } = require('./middlewares/errorHandler');
 
     // business routes
     const bussJobIntRouter = require('./routes/api/v1/business/bussJobInt');
+    const bussJobRouter = require('./routes/api/v1/business/bussJob');
 
-const jobsRouter = require('./routes/api/v1/jobs');
+// const jobsRouter = require('./routes/api/v1/jobs');
 const usersRouter = require('./routes/api/v1/user');
 const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
@@ -52,8 +53,9 @@ app.use(errorHandler);
 
     // business routes
     app.use('/api/v1/business/bussJobInt', bussJobIntRouter);
+    app.use('/api/v1/business/bussJob', bussJobRouter);
     
-app.use('/api/v1/jobs', jobsRouter);
+// app.use('/api/v1/jobs', jobsRouter);
 app.use('/api/v1/user', usersRouter);
 app.use('/api/v1/crew', crewRouter);
 app.use('/api/v1/business', businessRouter);
