@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const { User } = require('../../../../models/api/v1/User');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 
-// function to handle user login
+// handle user login
 const login = async (req, res, next) => {
     try {
         const { email, password, rememberMe } = req.body;
@@ -35,6 +35,36 @@ const login = async (req, res, next) => {
     }
 };
 
+// reset password
+const resetPassword = async (req, res, next) => {
+    try {
+        const { token } = req.query;
+        const { password, confirmPassword } = req.body;
+
+        if (!password || !confirmPassword) {
+            return res.status(400).json({ message: 'Both password and confirmPassword are required' });
+        }
+
+        if (password !== confirmPassword) {
+            return res.status(400).json({ message: 'Password and confirmPassword do not match' });
+        }
+
+        const user = await User.findOne({ resetPasswordToken: token });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found or invalid token' });
+        }
+
+        user.password = password;
+        user.resetPasswordToken = undefined;
+        await user.save();
+
+        res.status(200).json({ message: 'Password reset successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
-    login
+    login,
+    resetPassword
 };

@@ -47,7 +47,10 @@ const UserSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Job'
         }]
-    }
+    },
+    resetPasswordToken: {
+        type: String
+    },
 });
 
 const User = mongoose.model('User', UserSchema);

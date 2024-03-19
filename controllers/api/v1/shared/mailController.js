@@ -5,6 +5,13 @@ const { CustomError } = require('../../../../middlewares/errorHandler');
 const sgMail = require('@sendgrid/mail');
 sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
+// generate random code
+const generateRandomCode = () => {
+    const uuid = uuidv4(); // generate a UUID
+    const truncatedCode = uuid.replace(/-/g, '').slice(0, 8); // remove hyphens and take first 8 characters
+    return truncatedCode;
+};
+
 // general email send
 const sendEmail = async (to, subject, text, htmlContent) => {
     try {
@@ -23,12 +30,6 @@ const sendEmail = async (to, subject, text, htmlContent) => {
     }
 };
 
-// generate random code
-const generateRandomCode = () => {
-    const uuid = uuidv4(); // generate a UUID
-    const truncatedCode = uuid.replace(/-/g, '').slice(0, 8); // remove hyphens and take first 8 characters
-    return truncatedCode;
-};
 
 // send email to employees
 const sendEmailToEmployees = async (employees, business) => {
@@ -101,17 +102,17 @@ const sendJoinRequest = async (business) => {
 const sendPasswordResetEmail = async (req, res, next) => {
     try {
         const { email } = req.body;
-
-        // check if email exists
         const existingUser = await User.findOne({ email });
         if (!existingUser) {
             return res.status(404).json({ message: 'User not found' });
-        };
+        }
 
-        const resetToken = generateRandomCode(); // generate reset token
+        const resetToken = generateRandomCode();
+        existingUser.resetPasswordToken = resetToken;
+        await existingUser.save();
+
         const resetLink = `http://kroo.site/reset-password?token=${resetToken}`;
 
-        // construct email content
         const emailContent = `
             <p>You have requested a password reset. Please click the following link to reset your password:</p>
             <p><a href="${resetLink}">Reset Password</a></p>
@@ -123,7 +124,6 @@ const sendPasswordResetEmail = async (req, res, next) => {
             </ol>
         `;
 
-        // send email to user
         await sendEmail(email, 'Password Reset Request', 'Password Reset Request', emailContent);
         console.log(`Password reset email sent to ${email}`);
         res.status(200).json({ message: 'Password reset email sent successfully' });

@@ -5,4 +5,8 @@ const authController = require('../../../../controllers/api/v1/shared/authContro
 // handle user login
 router.post('/login', authController.login);
 
+// reset password
+router.patch('/reset-password', authController.resetPassword);
+router.put('/reset-password', authController.resetPassword);
+
 module.exports = router;
