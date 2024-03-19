@@ -2,7 +2,7 @@ const Job = require('../../../../models/api/v1/Jobs');
 const { User } = require('../../../../models/api/v1/User');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 
-// get all jobs
+// get all assigned jobs for logged in user
 const getCrewJobs = async (req, res, next) => {
     try {
         const userId = req.user.userId;

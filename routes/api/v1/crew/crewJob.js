@@ -4,9 +4,9 @@ const crewJobController = require('../../../../controllers/api/v1/crew/crewJobCo
 const authenticate = require('../../../../middlewares/authenticate');
 
 // GET all jobs
-router.get('/', authenticate, crewJobController.getCrewJobs);
+router.get('/jobs', authenticate, crewJobController.getCrewJobs);
 
 // GET job by ID
-router.get('/:id', crewJobController.getJobById);
+router.get('/jobs/:id', crewJobController.getJobById);
 
 module.exports = router;
