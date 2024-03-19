@@ -26,41 +26,42 @@ db.once('open', () => {
     console.log('Connected to database');
 });
 
-// routes
-const { errorHandler } = require('./middlewares/errorHandler');
+// ROUTES
+    // general routes
+    const { errorHandler } = require('./middlewares/errorHandler');
+    const usersRouter = require('./routes/api/v1/shared/user');
+    const mailRouter = require('./routes/api/v1/shared/mail');
+    const authRouter = require('./routes/api/v1/shared/auth');
 
     // crew routes
+    const crewRouter = require('./routes/api/v1/crew/crew');
     const crewJobRouter = require('./routes/api/v1/crew/crewJob');
     const crewJobIntRouter = require('./routes/api/v1/crew/crewJobInt');
 
     // business routes
-    const bussJobIntRouter = require('./routes/api/v1/business/bussJobInt');
+    const businessRouter = require('./routes/api/v1/business/business');
     const bussJobRouter = require('./routes/api/v1/business/bussJob');
+    const bussJobIntRouter = require('./routes/api/v1/business/bussJobInt');
 
-const usersRouter = require('./routes/api/v1/shared/user');
-const crewRouter = require('./routes/api/v1/crew/crew');
-const businessRouter = require('./routes/api/v1/business/business');
-const mailRouter = require('./routes/api/v1/shared/mail');
-const authRouter = require('./routes/api/v1/shared/auth');
+    
 
-// route handlers
-app.use(errorHandler);
+// ROUTE HANDLERS
+    // general routes
+    app.use(errorHandler);
+    app.use('/api/v1/user', usersRouter);
+    app.use('/api/v1/mail', mailRouter);
+    app.use('/api/v1/auth', authRouter);
 
     // crew routes
+    app.use('/api/v1/crew', crewRouter);
     app.use('/api/v1/crew/crewJob', crewJobRouter);
     app.use('/api/v1/crew/crewJobInt', crewJobIntRouter);
 
     // business routes
-    app.use('/api/v1/business/bussJobInt', bussJobIntRouter);
+    app.use('/api/v1/business', businessRouter);
     app.use('/api/v1/business/bussJob', bussJobRouter);
+    app.use('/api/v1/business/bussJobInt', bussJobIntRouter);
     
-// app.use('/api/v1/jobs', jobsRouter);
-app.use('/api/v1/user', usersRouter);
-app.use('/api/v1/crew', crewRouter);
-app.use('/api/v1/business', businessRouter);
-app.use('/api/v1/mail', mailRouter);
-app.use('/api/v1/auth', authRouter);
-
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
 });
