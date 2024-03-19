@@ -4,6 +4,27 @@ const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 const { sendJobOfferEmail } = require('../shared/mailController');
 
+// get all business applications
+const getAllBusinessApplications = async (req, res, next) => {
+    try {
+        const businessId = req.params.id;
+        const jobs = await Job.find({ businessId });
+
+        if (!jobs) {
+            return res.status(404).json({ message: 'No jobs found for the business' });
+        }
+
+        let allApplications = [];
+        for (const job of jobs) {
+            allApplications.push(...job.applications);
+        }
+
+        res.status(200).json({ applications: allApplications });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // offer job
 const offerJob = async (req, res, next) => {
     try {
@@ -55,5 +76,6 @@ const offerJob = async (req, res, next) => {
 };
 
 module.exports = {
+    getAllBusinessApplications,
     offerJob
 };
