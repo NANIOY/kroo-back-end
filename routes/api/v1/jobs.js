@@ -1,9 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const jobController = require('../../../controllers/api/v1/jobController');
+const authenticate = require('../../../middlewares/authenticate');
 
 // GET all jobs
-router.get('/', jobController.getJobs);
+router.get('/', authenticate, jobController.getUserJobs);
 
 // GET job by ID
 router.get('/:id', jobController.getJobById);

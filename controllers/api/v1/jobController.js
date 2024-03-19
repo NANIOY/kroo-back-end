@@ -1,22 +1,21 @@
 const Job = require('../../../models/api/v1/Jobs');
 const Business = require('../../../models/api/v1/Business');
+const { User } = require('../../../models/api/v1/User');
 const { CustomError } = require('../../../middlewares/errorHandler');
 
 // get all jobs
-const getJobs = async (req, res, next) => {
+const getUserJobs = async (req, res, next) => {
     try {
-        const jobs = await Job.find().populate({
-            path: 'applications',
-            select: '-job -__v' // exclude 'job' and '__v'
-        });
+        const userId = req.user.userId;
 
-        res.status(200).json({
-            success: true,
-            message: 'Jobs retrieved successfully.',
-            data: {
-                jobs
-            }
-        });
+        const user = await User.findById(userId).populate('userJobs');
+
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const userJobs = user.userJobs;
+        res.status(200).json({ userJobs });
     } catch (error) {
         next(error);
     }
@@ -168,7 +167,7 @@ const deleteJob = async (req, res, next) => {
 };
 
 module.exports = {
-    getJobs,
+    getUserJobs,
     getJobById,
     createJob,
     updateJob,
