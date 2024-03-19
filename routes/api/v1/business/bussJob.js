@@ -3,6 +3,9 @@ const router = express.Router();
 const bussJobController = require('../../../../controllers/api/v1/business/bussJobController');
 const authenticate = require('../../../../middlewares/authenticate');
 
+// GET all business jobs
+router.get('/:id', authenticate, bussJobController.getAllBusinessJobs);
+
 // POST new job
 router.post('/', bussJobController.createJob);
 

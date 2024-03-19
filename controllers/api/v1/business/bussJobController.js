@@ -2,6 +2,25 @@ const Job = require('../../../../models/api/v1/Jobs');
 const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 
+// get all business jobs
+const getAllBusinessJobs = async (req, res, next) => {
+    try {
+        const businessId = req.params.id;
+        const business = await Business.findById(businessId);
+
+        if (!business) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
+
+        const linkedJobs = await Job.find({ _id: { $in: business.businessJobs.linkedJobs } });
+        const offeredJobs = await Job.find({ _id: { $in: business.businessJobs.offeredJobs } });
+
+        res.status(200).json({ linkedJobs, offeredJobs });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // create job
 const createJob = async (req, res, next) => {
     console.log('Request body:', req.body);
@@ -127,6 +146,7 @@ const deleteJob = async (req, res, next) => {
 };
 
 module.exports = {
+    getAllBusinessJobs,
     createJob,
     updateJob,
     deleteJob
