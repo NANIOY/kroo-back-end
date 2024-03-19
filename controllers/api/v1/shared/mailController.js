@@ -8,7 +8,7 @@ sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 // generate random code
 const generateRandomCode = () => {
     const uuid = uuidv4(); // generate a UUID
-    const truncatedCode = uuid.replace(/-/g, '').slice(0, 8); // remove hyphens and take first 8 characters
+    const truncatedCode = uuid.replace(/-/g, '').slice(0, 24); // remove hyphens and take first 8 characters
     return truncatedCode;
 };
 
