@@ -8,7 +8,13 @@ const { sendJobOfferEmail } = require('../shared/mailController');
 const getAllBusinessApplications = async (req, res, next) => {
     try {
         const businessId = req.params.id;
-        const jobs = await Job.find({ businessId });
+        const jobs = await Job.find({ businessId }).populate({
+            path: 'applications',
+            populate: {
+                path: 'user',
+                select: 'username email'
+            }
+        });
 
         if (!jobs) {
             return res.status(404).json({ message: 'No jobs found for the business' });
@@ -16,7 +22,17 @@ const getAllBusinessApplications = async (req, res, next) => {
 
         let allApplications = [];
         for (const job of jobs) {
-            allApplications.push(...job.applications);
+            for (const application of job.applications) {
+                allApplications.push({
+                    jobId: job._id,
+                    userId: application.user._id,
+                    jobTitle: job.title,
+                    user: {
+                        username: application.user.username,
+                        email: application.user.email
+                    }
+                });
+            }
         }
 
         res.status(200).json({ applications: allApplications });
