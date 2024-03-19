@@ -2,6 +2,23 @@ const Job = require('../../../../models/api/v1/Jobs');
 const { User } = require('../../../../models/api/v1/User');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 
+// get all jobs
+const getAllJobs = async (req, res, next) => {
+    try {
+        const jobs = await Job.find();
+
+        res.status(200).json({
+            success: true,
+            message: 'Jobs retrieved successfully.',
+            data: {
+                jobs
+            }
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // get all assigned jobs for logged in user
 const getCrewJobs = async (req, res, next) => {
     try {
@@ -43,6 +60,7 @@ const getJobById = async (req, res, next) => {
 
 
 module.exports = {
+    getAllJobs,
     getCrewJobs,
     getJobById
 };
