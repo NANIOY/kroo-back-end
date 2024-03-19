@@ -37,7 +37,6 @@ const { errorHandler } = require('./middlewares/errorHandler');
     const bussJobIntRouter = require('./routes/api/v1/business/bussJobInt');
     const bussJobRouter = require('./routes/api/v1/business/bussJob');
 
-// const jobsRouter = require('./routes/api/v1/jobs');
 const usersRouter = require('./routes/api/v1/user');
 const crewRouter = require('./routes/api/v1/crew');
 const businessRouter = require('./routes/api/v1/business');
