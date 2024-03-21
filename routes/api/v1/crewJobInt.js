@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
-const authenticate = require('../../../../middlewares/authenticate');
-const crewJobIntController = require('../../../../controllers/api/v1/crew/crewJobIntController');
+const authenticate = require('../../../middlewares/authenticate');
+const crewJobIntController = require('../../../controllers/api/v1/crew/crewJobIntController');
 
 // GET all applications
 router.get('/applications', authenticate, crewJobIntController.getApplications);
