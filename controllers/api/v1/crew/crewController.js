@@ -50,24 +50,6 @@ const createCrewData = async (req, res, next) => {
             throw new CustomError('User already has crewData assigned. Use PATCH or PUT to update.', 400);
         }
 
-        if (!careerDetails || typeof careerDetails !== 'object') {
-            throw new CustomError('Career details are required and must be an object', 400);
-        }
-
-        if (!careerDetails.portfolioWork || !Array.isArray(careerDetails.portfolioWork)) {
-            throw new CustomError('Portfolio work must be an array', 400);
-        }
-
-        for (const work of careerDetails.portfolioWork) {
-            if (typeof work !== 'object') {
-                throw new CustomError('Each portfolio work item must be an object', 400);
-            }
-
-            if (!work.title || !work.type) {
-                throw new CustomError('Each portfolio work item must have title and type', 400);
-            }
-        }
-
         let updatedUserUrl = userUrl;
 
         if (updatedUserUrl) {
