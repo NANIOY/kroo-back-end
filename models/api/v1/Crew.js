@@ -7,12 +7,12 @@ const CrewDataSchema = new Schema({
         agendaService: String,
         profileImage: String,
         bannerImage: String,
-        function: String,
+        functions: [String],
     },
     profileDetails: {
         skills: [String],
         age: Number,
-        language: String,
+        languages: [String],
         location: String,
         workRadius: Number,
         bio: String

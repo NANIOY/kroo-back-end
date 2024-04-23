@@ -27,14 +27,21 @@ const login = async (req, res, next) => {
             throw new CustomError('Invalid password', 401);
         }
 
-        const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '1h' });
+        const sessionToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '4h' });
 
         let rememberMeToken = null;
         if (rememberMe) {
             rememberMeToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '365d' });
         }
 
-        res.status(200).json({ message: 'Login successful', data: { sessionToken, rememberMeToken } });
+        res.status(200).json({
+            message: 'Login successful',
+            data: {
+                sessionToken,
+                rememberMeToken,
+                userId: user._id
+            }
+        });
     } catch (error) {
         next(error);
     }
