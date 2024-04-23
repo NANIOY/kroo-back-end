@@ -130,10 +130,31 @@ const deleteCrewData = async (req, res, next) => {
     }
 };
 
+// upload image
+const handleImageUpload = async (req, res, next) => {
+    try {
+        console.log('Request body:', req.body);
+        console.log('Request file:', req.file);
+
+        if (!req.file) {
+            throw new CustomError('No image file provided', 400);
+        }
+        
+        res.status(200).json({
+            message: 'Image uploaded successfully',
+            filename: req.file.originalname,
+            size: req.file.size
+        });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllCrewData,
     getCrewData,
     createCrewData,
     updateCrewData,
-    deleteCrewData
+    deleteCrewData,
+    handleImageUpload
 };
