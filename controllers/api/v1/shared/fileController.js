@@ -9,10 +9,10 @@ cloudinary.config({
 
 const uploadImage = async (req, res, next) => {
     try {
-        const { userId } = req.body;
+        const { userId, imageType } = req.body;
 
-        if (!userId) {
-            throw new Error('User ID is required');
+        if (!userId || !imageType) {
+            throw new Error('User ID and Image Type are required');
         }
 
         // check if user exists
@@ -32,16 +32,19 @@ const uploadImage = async (req, res, next) => {
         // extract URL from Cloudinary response
         const imageUrl = result.secure_url;
 
-        // update or create crewData with URL of uploaded image
-        if (user.crewData) {
-            const crewData = await CrewData.findById(user.crewData);
-            if (crewData) {
+        // update the appropriate field in crewData with the URL of the uploaded image
+        const crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
+        if (crewData) {
+            if (imageType === 'profile' && !crewData.basicInfo.profileImage) {
                 crewData.basicInfo.profileImage = imageUrl;
-                await crewData.save();
+            } else if (imageType === 'banner' && !crewData.basicInfo.bannerImage) {
+                crewData.basicInfo.bannerImage = imageUrl;
             }
+            await crewData.save();
         } else {
+            // create new crewData if it doesn't exist
             const newCrewData = new CrewData({
-                basicInfo: { profileImage: imageUrl },
+                basicInfo: { [imageType === 'profile' ? 'profileImage' : 'bannerImage']: imageUrl },
             });
             await newCrewData.save();
             user.crewData = newCrewData._id;
