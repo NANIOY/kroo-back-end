@@ -5,8 +5,8 @@ const Schema = mongoose.Schema;
 const CrewDataSchema = new Schema({
     basicInfo: {
         agendaService: String,
-        profileImage: Buffer,
-        bannerImage: Buffer,
+        profileImage: String,
+        bannerImage: String,
         functions: [String],
     },
     profileDetails: {
