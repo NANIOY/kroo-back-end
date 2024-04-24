@@ -6,6 +6,7 @@ const { errorHandler } = require('./middlewares/errorHandler');
 const usersRouter = require('./routes/api/v1/user');
 const mailRouter = require('./routes/api/v1/mail');
 const authRouter = require('./routes/api/v1/auth');
+const fileRouter = require('./routes/api/v1/file');
 
 // crew routes
 const crewRouter = require('./routes/api/v1/crew');
@@ -22,6 +23,7 @@ router.use(errorHandler);
 router.use('/api/v1/user', usersRouter);
 router.use('/api/v1/mail', mailRouter);
 router.use('/api/v1/auth', authRouter);
+router.use('/api/v1/file', fileRouter);
 
 // crew routes
 router.use('/api/v1/crew', crewRouter);
