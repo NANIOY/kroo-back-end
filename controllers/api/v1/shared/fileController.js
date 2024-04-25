@@ -35,9 +35,9 @@ const uploadImage = async (req, res, next) => {
         // update the appropriate field in crewData with the URL of the uploaded image
         const crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
         if (crewData) {
-            if (imageType === 'profile' && !crewData.basicInfo.profileImage) {
+            if (imageType === 'profile') {
                 crewData.basicInfo.profileImage = imageUrl;
-            } else if (imageType === 'banner' && !crewData.basicInfo.bannerImage) {
+            } else if (imageType === 'banner') {
                 crewData.basicInfo.bannerImage = imageUrl;
             }
             await crewData.save();
