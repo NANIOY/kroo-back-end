@@ -42,32 +42,37 @@ const createCrewData = async (req, res, next) => {
         }
 
         const user = await User.findById(userId);
+
         if (!user) {
             throw new CustomError('User not found', 404);
         }
 
-        let updatedUserUrl = userUrl;
-        if (updatedUserUrl) {
-            updatedUserUrl = `kroo.site/user/${updatedUserUrl}`;
+        if (userUrl) {
+            const updatedUserUrl = `kroo.site/user/${userUrl}`;
             user.userUrl = updatedUserUrl;
         }
 
         let crewData;
+
         if (user.crewData) {
-            // if crewData exists, update it
-            crewData = await CrewData.findByIdAndUpdate(user.crewData, {
-                basicInfo,
-                profileDetails,
-                careerDetails,
-                connectivity
-            }, { new: true });
+            crewData = await CrewData.findById(user.crewData);
+
+            if (!crewData) {
+                throw new CustomError('Crew Data not found', 404);
+            }
+            crewData.basicInfo = { ...crewData.basicInfo, ...basicInfo };
+            crewData.profileDetails = { ...crewData.profileDetails, ...profileDetails };
+            crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
+            crewData.connectivity = { ...crewData.connectivity, ...connectivity };
+
+            await crewData.save();
+
         } else {
-            // if crewData does not exist, create it
             crewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity });
             user.crewData = crewData._id;
+            await crewData.save();
         }
 
-        await crewData.save();
         await user.save();
 
         res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData } });
@@ -75,7 +80,6 @@ const createCrewData = async (req, res, next) => {
         next(error);
     }
 };
-
 
 // update crew data by user ID
 const updateCrewData = async (req, res, next) => {
@@ -145,7 +149,7 @@ const handleImageUpload = async (req, res, next) => {
         if (!req.file) {
             throw new CustomError('No image file provided', 400);
         }
-        
+
         res.status(200).json({
             message: 'Image uploaded successfully',
             filename: req.file.originalname,
