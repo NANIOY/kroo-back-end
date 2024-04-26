@@ -32,7 +32,7 @@ const getCrewData = async (req, res, next) => {
     }
 };
 
-// create crew data by user ID
+// create or update crew data by user ID
 const createCrewData = async (req, res, next) => {
     try {
         const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl } = req.body;
@@ -46,30 +46,36 @@ const createCrewData = async (req, res, next) => {
             throw new CustomError('User not found', 404);
         }
 
-        if (user.crewData) {
-            throw new CustomError('User already has crewData assigned. Use PATCH or PUT to update.', 400);
-        }
-
         let updatedUserUrl = userUrl;
-
         if (updatedUserUrl) {
             updatedUserUrl = `kroo.site/user/${updatedUserUrl}`;
             user.userUrl = updatedUserUrl;
         }
 
+        let crewData;
+        if (user.crewData) {
+            // if crewData exists, update it
+            crewData = await CrewData.findByIdAndUpdate(user.crewData, {
+                basicInfo,
+                profileDetails,
+                careerDetails,
+                connectivity
+            }, { new: true });
+        } else {
+            // if crewData does not exist, create it
+            crewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity });
+            user.crewData = crewData._id;
+        }
+
+        await crewData.save();
         await user.save();
 
-        const newCrewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity });
-        await newCrewData.save();
-
-        user.crewData = newCrewData._id;
-        await user.save();
-
-        res.status(201).json({ message: 'Crew data created successfully', data: { crewData: newCrewData } });
+        res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData } });
     } catch (error) {
         next(error);
     }
 };
+
 
 // update crew data by user ID
 const updateCrewData = async (req, res, next) => {
