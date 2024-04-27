@@ -15,6 +15,7 @@ const CrewDataSchema = new Schema({
         languages: [String],
         location: String,
         workRadius: Number,
+        tagline: String,
         bio: String
     },
     careerDetails: {
