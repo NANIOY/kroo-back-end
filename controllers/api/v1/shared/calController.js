@@ -11,7 +11,7 @@ const calendar = google.calendar({
     auth: oauth2Client
 });
 
-exports.getAuthUrl = (req, res) => {
+const getAuthUrl = (req, res) => {
     const scopes = [
         'https://www.googleapis.com/auth/calendar'
     ];
@@ -24,7 +24,7 @@ exports.getAuthUrl = (req, res) => {
     res.redirect(url);
 };
 
-exports.getTokens = async (req, res) => {
+const getTokens = async (req, res) => {
     const code = req.query.code;
 
     try {
@@ -36,7 +36,7 @@ exports.getTokens = async (req, res) => {
     }
 };
 
-exports.scheduleEvent = async (req, res) => {
+const scheduleEvent = async (req, res) => {
     try {
         const result = await calendar.events.insert({
             calendarId: 'primary',
@@ -60,7 +60,7 @@ exports.scheduleEvent = async (req, res) => {
     }
 };
 
-exports.listEvents = async (req, res) => {
+const listEvents = async (req, res) => {
     try {
         const result = await calendar.events.list({
             calendarId: 'primary',
@@ -75,4 +75,11 @@ exports.listEvents = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
+};
+
+module.exports = {
+    getAuthUrl,
+    getTokens,
+    scheduleEvent,
+    listEvents
 };
