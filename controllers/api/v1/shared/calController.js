@@ -1,5 +1,7 @@
 const { google } = require('googleapis');
 const Event = require('../../../../models/api/v1/Calendar');
+const CrewData = require('../../../../models/api/v1/Crew');
+const { User } = require('../../../../models/api/v1/User');
 
 // create OAuth2 client
 const oauth2Client = new google.auth.OAuth2(
@@ -16,13 +18,14 @@ const calendar = google.calendar({
 
 // GET auth URL for Google Calendar API access
 const getAuthUrl = (req, res) => {
-    const scopes = [
-        'https://www.googleapis.com/auth/calendar'
-    ];
+    const userId = req.query.userId;
+    const scopes = ['https://www.googleapis.com/auth/calendar'];
 
+    const state = JSON.stringify({ userId });
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
-        scope: scopes
+        scope: scopes,
+        state: state
     });
 
     res.redirect(url);
@@ -31,13 +34,42 @@ const getAuthUrl = (req, res) => {
 // GET tokens from Google Calendar API access code and set credentials for OAuth2 client
 const getTokens = async (req, res) => {
     const code = req.query.code;
+    const state = JSON.parse(req.query.state);
+    const userId = state.userId;
 
     try {
         const { tokens } = await oauth2Client.getToken(code);
         oauth2Client.setCredentials(tokens);
-        res.json({ message: "Successfully authenticated with Google." });
+
+        if (!tokens.refresh_token || !tokens.access_token) {
+            throw new Error('Missing access or refresh tokens');
+        }
+
+        const expiryDate = new Date(tokens.expiry_date);
+
+        const user = await User.findById(userId);
+        if (!user) {
+            console.log(`User not found with ID: ${userId}`);
+            return res.status(404).send({ message: 'User not found' });
+        }
+
+        let crewData = await CrewData.findById(user.crewData);
+        if (!crewData) {
+            crewData = new CrewData({ userId: user._id });
+            await crewData.save();
+        }
+
+        crewData.googleCalendar = {
+            accessToken: tokens.access_token,
+            refreshToken: tokens.refresh_token,
+            expiryDate: expiryDate
+        };
+        await crewData.save();
+
+        res.send({ message: "Google Calendar linked successfully!" });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Failed to retrieve tokens:', error);
+        res.status(500).send({ message: 'Failed to link Google Calendar.', error: error.message });
     }
 };
 

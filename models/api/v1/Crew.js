@@ -4,7 +4,7 @@ const Schema = mongoose.Schema;
 // schema for crew data
 const CrewDataSchema = new Schema({
     basicInfo: {
-        agendaService: String,
+        // agendaService: String,
         profileImage: String,
         bannerImage: String,
         functions: [String],
@@ -36,7 +36,13 @@ const CrewDataSchema = new Schema({
     connectivity: {
         connectSocials: [String],
         extraWebsites: [{ title: String, url: String }],
-    }
+    },
+    googleCalendar: {
+        accessToken: String,
+        refreshToken: String,
+        expiryDate: Date,
+        // email: String,
+    },
 });
 
 const CrewData = mongoose.model('CrewData', CrewDataSchema);

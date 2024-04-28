@@ -34,83 +34,82 @@ const getCrewData = async (req, res, next) => {
 
 // create or update crew data by user ID
 const createCrewData = async (req, res, next) => {
+    const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl, googleCalendar } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+    }
+
     try {
-        const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl } = req.body;
-
-        if (!userId) {
-            throw new CustomError('User ID is required', 400);
-        }
-
         const user = await User.findById(userId);
-
         if (!user) {
-            throw new CustomError('User not found', 404);
+            return res.status(404).json({ message: 'User not found' });
         }
 
         if (userUrl) {
-            const updatedUserUrl = `kroo.site/user/${userUrl}`;
-            user.userUrl = updatedUserUrl;
+            user.userUrl = `kroo.site/user/${userUrl}`;
         }
 
         let crewData;
-
         if (user.crewData) {
-            crewData = await CrewData.findById(user.crewData);
-
-            if (!crewData) {
-                throw new CustomError('Crew Data not found', 404);
-            }
-            crewData.basicInfo = { ...crewData.basicInfo, ...basicInfo };
-            crewData.profileDetails = { ...crewData.profileDetails, ...profileDetails };
-            crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
-            crewData.connectivity = { ...crewData.connectivity, ...connectivity };
-
-            await crewData.save();
-
+            crewData = await CrewData.findByIdAndUpdate(user.crewData, {
+                basicInfo,
+                profileDetails,
+                careerDetails,
+                connectivity,
+                googleCalendar
+            }, { new: true, runValidators: true });
         } else {
-            crewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity });
-            user.crewData = crewData._id;
+            crewData = new CrewData({
+                basicInfo,
+                profileDetails,
+                careerDetails,
+                connectivity,
+                googleCalendar
+            });
             await crewData.save();
+            user.crewData = crewData._id;
         }
 
         await user.save();
-
-        res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData } });
+        return res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData } });
     } catch (error) {
+        console.error("Error in createCrewData:", error);
         next(error);
     }
 };
 
 // update crew data by user ID
 const updateCrewData = async (req, res, next) => {
+    const { userId, basicInfo, profileDetails, careerDetails, connectivity, googleCalendar } = req.body;
+
+    if (!userId) {
+        return res.status(400).json({ message: 'User ID is required' });
+    }
+
     try {
-        const { userId, basicInfo, profileDetails, careerDetails, connectivity } = req.body;
-
-        if (!userId) {
-            throw new CustomError('User ID is required', 400);
-        }
-
         const user = await User.findById(userId);
-        if (!user) {
-            throw new CustomError('User not found', 404);
-        }
-
-        if (!user.crewData) {
-            throw new CustomError('No crewData found for the user', 404);
+        if (!user || !user.crewData) {
+            return res.status(404).json({ message: 'User or associated Crew Data not found' });
         }
 
         const updatedCrewData = await CrewData.findByIdAndUpdate(
             user.crewData,
-            { basicInfo, profileDetails, careerDetails, connectivity },
+            {
+                basicInfo,
+                profileDetails,
+                careerDetails,
+                connectivity,
+                googleCalendar
+            },
             { new: true }
         );
 
-        res.status(200).json({ message: 'Crew data updated successfully', data: { crewData: updatedCrewData } });
+        res.status(200).json({ message: 'Crew data updated successfully', data: updatedCrewData });
     } catch (error) {
         next(error);
     }
 };
-
 // delete crew data by ID
 const deleteCrewData = async (req, res, next) => {
     try {
