@@ -59,3 +59,20 @@ exports.scheduleEvent = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.listEvents = async (req, res) => {
+    try {
+        const result = await calendar.events.list({
+            calendarId: 'primary',
+            timeMin: (new Date()).toISOString(),
+            maxResults: 10,
+            singleEvents: true,
+            orderBy: 'startTime',
+        });
+
+        const events = result.data.items;
+        res.json(events);
+    } catch (error) {
+        res.status(500).json({ error: error.message });
+    }
+};
