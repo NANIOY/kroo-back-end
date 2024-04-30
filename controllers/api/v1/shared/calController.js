@@ -57,6 +57,8 @@ const getTokens = async (req, res) => {
         if (!crewData) {
             crewData = new CrewData({ userId: user._id });
             await crewData.save();
+            user.crewData = crewData._id;
+            await user.save();
         }
 
         crewData.googleCalendar = {
