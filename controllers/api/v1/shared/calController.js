@@ -122,10 +122,11 @@ const listEvents = async (req, res) => {
             expiry_date: new Date(user.crewData.googleCalendar.expiryDate).getTime()
         });
 
+        const timeMinConfig = new Date('2000-01-01').toISOString();
+
         const result = await calendar.events.list({
             calendarId: 'primary',
-            timeMin: (new Date()).toISOString(),
-            maxResults: 10,
+            timeMin: timeMinConfig,
             singleEvents: true,
             orderBy: 'startTime'
         });
