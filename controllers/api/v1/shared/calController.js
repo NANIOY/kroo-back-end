@@ -106,21 +106,34 @@ const scheduleEvent = async (req, res) => {
     }
 };
 
-// GET all events from Google Calendar API and return as JSON response to client request
+// GET all events for user from Google Calendar API
 const listEvents = async (req, res) => {
+    const userId = req.query.userId;
+
     try {
+        const user = await User.findById(userId).populate('crewData');
+        if (!user || !user.crewData || !user.crewData.googleCalendar) {
+            return res.status(404).send({ message: 'No calendar link found for user.' });
+        }
+
+        oauth2Client.setCredentials({
+            access_token: user.crewData.googleCalendar.accessToken,
+            refresh_token: user.crewData.googleCalendar.refreshToken,
+            expiry_date: new Date(user.crewData.googleCalendar.expiryDate).getTime()
+        });
+
         const result = await calendar.events.list({
             calendarId: 'primary',
             timeMin: (new Date()).toISOString(),
             maxResults: 10,
             singleEvents: true,
-            orderBy: 'startTime',
+            orderBy: 'startTime'
         });
 
-        const events = result.data.items;
-        res.json(events);
+        res.json(result.data.items);
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        console.error('Failed to list events:', error);
+        res.status(500).send({ message: 'Failed to retrieve events from Google Calendar.', error: error.message });
     }
 };
 
