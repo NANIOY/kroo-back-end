@@ -78,22 +78,21 @@ const createBusiness = async (req, res, next) => {
             throw new CustomError('Invalid email format', 400);
         }
 
-        const extraWebsites = req.body.connectivity.extraWebsites || [];
-        for (const website of extraWebsites) {
-            if (!isValidURL(website.url)) {
-                throw new CustomError('Invalid URL format', 400);
-            }
-        }
+        // const extraWebsites = req.body.connectivity.extraWebsites || [];
+        // for (const website of extraWebsites) {
+        //     if (!isValidURL(website.url)) {
+        //         throw new CustomError('Invalid URL format', 400);
+        //     }
+        // }
 
-        const maxPortfolioProjects = 20;
-        if (req.body.showProjects.portfolioWork.length > maxPortfolioProjects) {
-            throw new CustomError(`Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})`, 400);
-        }
+        // const maxPortfolioProjects = 20;
+        // if (req.body.showProjects.portfolioWork.length > maxPortfolioProjects) {
+        //     throw new CustomError(`Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})`, 400);
+        // }
 
         if (req.body.connectivity.customUrl) {
             req.body.connectivity.customUrl = `kroo.site/business/${req.body.connectivity.customUrl}`;
         } else {
-            // Generate custom URL based on business name
             const businessName = req.body.name.trim().toLowerCase().replace(/\s+/g, '-');
             req.body.connectivity.customUrl = `kroo.site/business/${businessName}`;
         }

@@ -20,7 +20,19 @@ const BusinessSchema = new Schema({
         companyEmail: String,
         mediaTypes: {
             type: String,
-            enum: ['Film', 'Television', 'Photography', 'Animation', 'Digital Media', 'Marketing', 'Other']
+            enum: ["Animation",
+                "Children's programming",
+                "Commercials",
+                "Documentaries",
+                "Feature films",
+                "Game shows",
+                "Music videos",
+                "Reality television",
+                "Short films",
+                "Sports broadcasts",
+                "Television programs",
+                "Television shows",
+                "Web series"]
         },
         languages: [String],
         location: String,
@@ -30,7 +42,7 @@ const BusinessSchema = new Schema({
     },
     connectivity: {
         connectSocials: [String],
-        extraWebsites: [{ title: String, url: String }],
+        // extraWebsites: [{ title: String, url: String }],
         customUrl: String
     },
     showProjects: {
