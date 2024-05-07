@@ -63,7 +63,7 @@ const createBusiness = async (req, res, next) => {
             throw new CustomError('Unauthorized', 403);
         }
 
-        const existingBusiness = await Business.findOne({ name: req.body.name });
+        const existingBusiness = await Business.findOne({ name: req.body.businessInfo.companyName });
         if (existingBusiness) {
             await sendJoinRequest(existingBusiness);
             throw new CustomError('Company name already exists. Join request sent to the existing business.', 400);

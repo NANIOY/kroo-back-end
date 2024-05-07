@@ -12,11 +12,11 @@ const EmployeeSchema = new Schema({
 
 // schema for business data
 const BusinessSchema = new Schema({
-    name: {
-        type: String,
-        required: true
-    },
     businessInfo: {
+        companyName: {
+            type: String,
+            required: true
+        },
         companyEmail: String,
         mediaTypes: {
             type: String,
