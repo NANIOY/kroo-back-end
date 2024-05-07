@@ -34,41 +34,42 @@ const getCrewData = async (req, res, next) => {
 
 // create or update crew data by user ID
 const createCrewData = async (req, res, next) => {
-    const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl, googleCalendar } = req.body;
-
-    if (!userId) {
-        return res.status(400).json({ message: 'User ID is required' });
-    }
-
     try {
+
+        const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl, googleCalendar } = req.body;
+
+        if (!userId) {
+            return res.status(400).json({ message: 'User ID is required' });
+        }
+
         const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
 
         if (userUrl) {
-            user.userUrl = `kroo.site/user/${userUrl}`;
+            const updatedUserUrl = `kroo.site/user/${userUrl}`;
+            user.userUrl = updatedUserUrl;
         }
 
         let crewData;
         if (user.crewData) {
-            crewData = await CrewData.findByIdAndUpdate(user.crewData, {
-                basicInfo,
-                profileDetails,
-                careerDetails,
-                connectivity,
-                googleCalendar
-            }, { new: true, runValidators: true });
-        } else {
-            crewData = new CrewData({
-                basicInfo,
-                profileDetails,
-                careerDetails,
-                connectivity,
-                googleCalendar
-            });
+            crewData = await CrewData.findById(user.crewData);
+
+            if (!crewData) {
+                throw new CustomError('Crew Data not found', 404);
+            }
+            crewData.basicInfo = { ...crewData.basicInfo, ...basicInfo };
+            crewData.profileDetails = { ...crewData.profileDetails, ...profileDetails };
+            crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
+            crewData.connectivity = { ...crewData.connectivity, ...connectivity };
+            crewData.googleCalendar = { ...crewData.googleCalendar, ...googleCalendar };
+
             await crewData.save();
+        } else {
+            crewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity, googleCalendar });
             user.crewData = crewData._id;
+            await crewData.save();
         }
 
         await user.save();
