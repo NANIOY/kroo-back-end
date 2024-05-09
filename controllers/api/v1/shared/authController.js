@@ -27,13 +27,13 @@ const login = async (req, res, next) => {
             throw new CustomError('Invalid password', 401);
         }
 
-        let activeRole = user.roles[0];
-        if (requestedRole) {
-            if (!user.roles.includes(requestedRole)) {
-                throw new CustomError('User does not have the requested role', 403);
-            }
-            activeRole = requestedRole;
+        let activeRole = requestedRole || user.lastUsedRole || user.roles[0];
+        if (requestedRole && !user.roles.includes(requestedRole)) {
+            throw new CustomError('User does not have the requested role', 403);
         }
+
+        user.lastUsedRole = activeRole;
+        await user.save();
 
         const sessionToken = jwt.sign(
             { userId: user._id, roles: user.roles, activeRole: activeRole },

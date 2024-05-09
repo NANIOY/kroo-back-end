@@ -21,6 +21,10 @@ const UserSchema = new Schema({
         type: String,
         enum: ['crew', 'business'],
     }],
+    lastUsedRole: {
+        type: String,
+        enum: ['crew', 'business']
+    },
     userUrl: {
         type: String,
         unique: true
