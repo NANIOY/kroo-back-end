@@ -59,8 +59,8 @@ const createBusiness = async (req, res, next) => {
             throw new CustomError('User already has a linked business', 400);
         }
 
-        if (user.role !== 'business') {
-            throw new CustomError('Unauthorized', 403);
+        if (!user.roles.includes('business')) {
+            user.roles.push('business');
         }
 
         const existingBusiness = await Business.findOne({ name: req.body.businessInfo.companyName });
