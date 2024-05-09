@@ -11,7 +11,7 @@ const hashPassword = async (password) => {
 // handle user login
 const login = async (req, res, next) => {
     try {
-        const { email, password, rememberMe } = req.body;
+        const { email, password, rememberMe, role: requestedRole } = req.body;
 
         if (!email || !password) {
             throw new CustomError('Email and password are required', 400);
@@ -27,8 +27,16 @@ const login = async (req, res, next) => {
             throw new CustomError('Invalid password', 401);
         }
 
+        let activeRole = user.roles[0];
+        if (requestedRole) {
+            if (!user.roles.includes(requestedRole)) {
+                throw new CustomError('User does not have the requested role', 403);
+            }
+            activeRole = requestedRole;
+        }
+
         const sessionToken = jwt.sign(
-            { userId: user._id, roles: user.roles },
+            { userId: user._id, roles: user.roles, activeRole: activeRole },
             process.env.JWT_SECRET,
             { expiresIn: '4h' }
         );
@@ -36,7 +44,7 @@ const login = async (req, res, next) => {
         let rememberMeToken = null;
         if (rememberMe) {
             rememberMeToken = jwt.sign(
-                { userId: user._id, roles: user.roles },
+                { userId: user._id, roles: user.roles, activeRole: activeRole },
                 process.env.JWT_SECRET,
                 { expiresIn: '365d' }
             );
@@ -48,13 +56,17 @@ const login = async (req, res, next) => {
                 sessionToken,
                 rememberMeToken,
                 userId: user._id,
-                roles: user.roles
+                roles: user.roles,
+                activeRole: activeRole
             }
         });
     } catch (error) {
         next(error);
     }
 };
+
+
+
 
 // reset password
 const resetPassword = async (req, res, next) => {
