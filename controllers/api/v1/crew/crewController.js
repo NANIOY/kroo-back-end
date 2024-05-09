@@ -54,8 +54,7 @@ const createCrewData = async (req, res, next) => {
 
         let crewData;
         if (user.crewData) {
-            crewData = await CrewData.findById(user.crewData);
-
+            const crewData = await CrewData.findById(user.crewData);
             if (!crewData) {
                 throw new CustomError('Crew Data not found', 404);
             }
@@ -64,16 +63,15 @@ const createCrewData = async (req, res, next) => {
             crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
             crewData.connectivity = { ...crewData.connectivity, ...connectivity };
             crewData.googleCalendar = { ...crewData.googleCalendar, ...googleCalendar };
-
             await crewData.save();
         } else {
-            crewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity, googleCalendar });
-            user.crewData = crewData._id;
-            await crewData.save();
+            const newCrewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity, googleCalendar });
+            await newCrewData.save();
+            user.crewData = newCrewData._id;
         }
 
         await user.save();
-        return res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData } });
+        res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData: user.crewData } });
     } catch (error) {
         console.error("Error in createCrewData:", error);
         next(error);

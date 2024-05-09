@@ -17,15 +17,18 @@ const UserSchema = new Schema({
         type: String,
         required: true
     },
-    role: {
+    roles: [{
         type: String,
-        required: true,
         enum: ['crew', 'business'],
+    }],
+    lastUsedRole: {
+        type: String,
+        enum: ['crew', 'business']
     },
     userUrl: {
         type: String,
         unique: true
-    },    
+    },
     crewData: {
         type: Schema.Types.ObjectId,
         ref: 'CrewData'
