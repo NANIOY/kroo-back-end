@@ -28,7 +28,7 @@ const login = async (req, res, next) => {
         }
 
         const sessionToken = jwt.sign(
-            { userId: user._id, role: user.role },
+            { userId: user._id, roles: user.roles },
             process.env.JWT_SECRET,
             { expiresIn: '4h' }
         );
@@ -36,7 +36,7 @@ const login = async (req, res, next) => {
         let rememberMeToken = null;
         if (rememberMe) {
             rememberMeToken = jwt.sign(
-                { userId: user._id, role: user.role },
+                { userId: user._id, roles: user.roles },
                 process.env.JWT_SECRET,
                 { expiresIn: '365d' }
             );
@@ -48,7 +48,7 @@ const login = async (req, res, next) => {
                 sessionToken,
                 rememberMeToken,
                 userId: user._id,
-                role: user.role
+                roles: user.roles
             }
         });
     } catch (error) {

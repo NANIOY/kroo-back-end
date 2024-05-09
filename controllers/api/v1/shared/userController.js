@@ -40,8 +40,8 @@ const createUser = async (req, res) => {
         const { username, email, password, role } = req.body;
 
         // check if all fields are provided
-        if (!username || !email || !password || !role) {
-            return res.status(400).json({ message: 'All fields are required' });
+        if (!username || !email || !password, !role) {
+            return res.status(400).json({ message: 'Username, email, password, and role are required' });
         }
 
         // check if role is valid
@@ -58,19 +58,16 @@ const createUser = async (req, res) => {
         // generate unique URL for user
         let userUrl = `kroo.site/user/${username.toLowerCase().replace(/\s/g, '-')}`;
         let counter = 1;
-        let userWithSameUrl = await User.findOne({ userUrl });
-        while (userWithSameUrl) {
+        while (await User.findOne({ userUrl })) {
             userUrl = `kroo.site/user/${username.toLowerCase().replace(/\s/g, '-')}-${counter}`;
             counter++;
-            userWithSameUrl = await User.findOne({ userUrl });
         }
 
         // hash the password
         const hashedPassword = await hashPassword(password);
 
         // create new user with hashed password
-        const newUser = new User({ username, email, password: hashedPassword, role, userUrl });
-
+        const newUser = new User({ username, email, password: hashedPassword, userUrl, roles: [role]});
         await newUser.save();
 
         res.status(201).json({ message: 'User created successfully', data: { user: newUser } });
