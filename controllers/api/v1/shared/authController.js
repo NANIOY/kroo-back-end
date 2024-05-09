@@ -35,7 +35,11 @@ const login = async (req, res, next) => {
 
         let rememberMeToken = null;
         if (rememberMe) {
-            rememberMeToken = jwt.sign({ userId: user._id }, process.env.JWT_SECRET, { expiresIn: '365d' });
+            rememberMeToken = jwt.sign(
+                { userId: user._id, role: user.role },
+                process.env.JWT_SECRET,
+                { expiresIn: '365d' }
+            );
         }
 
         res.status(200).json({
