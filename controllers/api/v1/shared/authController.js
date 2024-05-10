@@ -65,8 +65,42 @@ const login = async (req, res, next) => {
     }
 };
 
+const switchRole = async (req, res) => {
+    const { token, newRole } = req.body;
+    if (!token) return res.status(401).json({ message: "Authentication token is required" });
 
+    try {
+        const decoded = jwt.verify(token, process.env.JWT_SECRET);
+        const user = await User.findById(decoded.userId);
 
+        if (!user) {
+            return res.status(404).json({ message: "User not found" });
+        }
+
+        if (!user.roles.includes(newRole)) {
+            return res.status(403).json({ message: "Access to the requested role is forbidden" });
+        }
+
+        const newToken = jwt.sign(
+            { userId: user._id, roles: newRole },
+            process.env.JWT_SECRET,
+            { expiresIn: '4h' }
+        );
+
+        user.activeRole = newRole;
+        await user.save();
+
+        res.json({
+            message: 'Role switched successfully',
+            token: newToken,
+            role: newRole
+        });
+
+    } catch (error) {
+        console.error("Error switching roles:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
 
 // reset password
 const resetPassword = async (req, res, next) => {
@@ -100,5 +134,6 @@ const resetPassword = async (req, res, next) => {
 module.exports = {
     hashPassword,
     login,
+    switchRole,
     resetPassword
 };
