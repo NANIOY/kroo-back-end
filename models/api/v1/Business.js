@@ -18,22 +18,10 @@ const BusinessSchema = new Schema({
             required: true
         },
         companyEmail: String,
-        mediaTypes: {
+        mediaTypes: [{
             type: String,
-            enum: ["Animation",
-                "Children's programming",
-                "Commercials",
-                "Documentaries",
-                "Feature films",
-                "Game shows",
-                "Music videos",
-                "Reality television",
-                "Short films",
-                "Sports broadcasts",
-                "Television programs",
-                "Television shows",
-                "Web series"]
-        },
+            enum: ["Animation", "Children's programming", "Commercials", "Documentaries", "Feature films", "Game shows", "Music videos", "Reality television", "Short films", "Sports broadcasts", "Television programs", "Television shows", "Web series"]
+        }],
         languages: [String],
         location: String,
         logo: String,
