@@ -1,6 +1,7 @@
 const Job = require('../../../../models/api/v1/Jobs');
 const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
+const axios = require('axios');
 
 // get all business jobs
 const getAllBusinessJobs = async (req, res, next) => {
@@ -26,69 +27,76 @@ const createJob = async (req, res, next) => {
     console.log('Request body:', req.body);
 
     try {
-        const propertiesToExtract = [
-            'title',
-            'description',
-            'wage',
-            'date',
-            'time',
-            'skills',
-            'jobFunction',
-            'location',
-            'production_type',
-            'union_status',
-            'attachments',
-            'businessId',
-            'url'
-        ];
+        const {
+            title,
+            description,
+            wage,
+            date,
+            time,
+            skills,
+            jobFunction,
+            location,
+            production_type,
+            union_status,
+            attachments,
+            businessId
+        } = req.body;
 
-        // extract properties from request body
-        const jobData = {};
-        propertiesToExtract.forEach(property => {
-            if (req.body[property]) {
-                jobData[property] = req.body[property];
-            }
-        });
-
-        
-        // check if businessId is provided
-        const { businessId } = req.body;
         if (!businessId) {
-            throw new CustomError('Business ID is required.', 400);
+            throw new Error('Business ID is required.', 400);
         }
 
-        // check if business exists
         const business = await Business.findById(businessId);
         if (!business) {
-            throw new CustomError('Business not found.', 404);
+            throw new Error('Business not found.', 404);
         }
 
-        // add business to job data
-        jobData.business = businessId;
+        // determine country based on city if not provided
+        if (!location.country && location.city) {
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&city=${encodeURIComponent(location.city)}&addressdetails=1`;
+            const response = await axios.get(apiUrl, {
+                headers: { 'Accept-Language': 'en' }
+            });
+            if (response.data && response.data.length > 0) {
+                location.country = response.data[0].address.country;
+            } else {
+                throw new Error('Unable to fetch country for the provided city.');
+            }
+        }
 
-        // create new job
-        const newJob = new Job(jobData);
+        const newJob = new Job({
+            title,
+            businessId,
+            description,
+            wage,
+            date,
+            time,
+            skills,
+            jobFunction,
+            location: {
+                city: location.city,
+                country: location.country,
+                address: location.address
+            },
+            production_type,
+            union_status,
+            attachments
+        });
 
-        // generate unique URL for job
         const jobId = newJob._id.toString();
-        const jobUrl = `http://kroo.site/jobs/${jobId}`; // CHANGE TO HTTPS EVENTUALLY
-        newJob.url = jobUrl;
-
-        // save new job to database
+        newJob.url = `http://kroo.site/jobs/${jobId}`;
         await newJob.save();
 
-        // add job to business
         business.businessJobs.linkedJobs.push(newJob._id);
         await business.save();
 
         res.status(201).json({
             success: true,
             message: 'Job created successfully.',
-            data: {
-                job: newJob
-            }
+            data: { job: newJob }
         });
     } catch (error) {
+        console.log('Error creating job:', error.message);
         next(error);
     }
 };
