@@ -1,5 +1,6 @@
 const { CrewData, User } = require('../../../../models/api/v1/User');
 const { CustomError } = require('../../../../middlewares/errorHandler');
+const axios = require('axios');
 
 // GET all crew data
 const getAllCrewData = async (req, res, next) => {
@@ -35,7 +36,6 @@ const getCrewData = async (req, res, next) => {
 // create or update crew data by user ID
 const createCrewData = async (req, res, next) => {
     try {
-
         const { userId, basicInfo, profileDetails, careerDetails, connectivity, userUrl, googleCalendar } = req.body;
 
         if (!userId) {
@@ -52,25 +52,40 @@ const createCrewData = async (req, res, next) => {
             user.userUrl = updatedUserUrl;
         }
 
-        let crewData;
-        if (user.crewData) {
-            const crewData = await CrewData.findById(user.crewData);
-            if (!crewData) {
-                throw new CustomError('Crew Data not found', 404);
+        if (!profileDetails.country && profileDetails.city) {
+            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&city=${encodeURIComponent(profileDetails.city)}&addressdetails=1`;
+            try {
+                const response = await axios.get(apiUrl, {
+                    headers: { 'Accept-Language': 'en' }
+                });
+                if (response.data && response.data.length > 0) {
+                    profileDetails.country = response.data[0].address.country;
+                } else {
+                    throw new Error('Unable to fetch country for the provided city.');
+                }
+            } catch (error) {
+                console.error('Failed to fetch country:', error);
             }
-            crewData.basicInfo = { ...crewData.basicInfo, ...basicInfo };
-            crewData.profileDetails = { ...crewData.profileDetails, ...profileDetails };
-            crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
-            crewData.connectivity = { ...crewData.connectivity, ...connectivity };
-            crewData.googleCalendar = { ...crewData.googleCalendar, ...googleCalendar };
-            await crewData.save();
-        } else {
-            const newCrewData = new CrewData({ basicInfo, profileDetails, careerDetails, connectivity, googleCalendar });
-            await newCrewData.save();
-            user.crewData = newCrewData._id;
         }
 
-        await user.save();
+        let crewData;
+        if (user.crewData) {
+            crewData = await CrewData.findById(user.crewData);
+            if (!crewData) {
+                return res.status(404).json({ message: 'Crew Data not found' });
+            }
+        } else {
+            crewData = new CrewData();
+            user.crewData = crewData._id;
+        }
+
+        crewData.basicInfo = { ...crewData.basicInfo, ...basicInfo };
+        crewData.profileDetails = { ...crewData.profileDetails, ...profileDetails };
+        crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
+        crewData.connectivity = { ...crewData.connectivity, ...connectivity };
+        crewData.googleCalendar = { ...crewData.googleCalendar, ...googleCalendar };
+        await crewData.save();
+
         res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData: user.crewData } });
     } catch (error) {
         console.error("Error in createCrewData:", error);
