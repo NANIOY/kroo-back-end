@@ -36,8 +36,9 @@ const JobSchema = new Schema({
         required: true
     },
     location: {
-        type: String,
-        required: true
+        city: { type: String, required: true },
+        country: { type: String, required: true },
+        address: { type: String, required: true }
     },
     production_type: {
         type: String,
