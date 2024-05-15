@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
+const Jobs = require('./Jobs');
 
 const JobApplicationSchema = new Schema({
     job: {
@@ -20,6 +21,10 @@ const JobApplicationSchema = new Schema({
         type: String,
         enum: ['pending', 'accepted', 'rejected'],
         default: 'pending'
+    },
+    jobDetails: {
+        type: Schema.Types.ObjectId,
+        ref: 'Jobs'
     }
 });
 
