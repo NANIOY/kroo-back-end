@@ -17,7 +17,15 @@ const getApplications = async (req, res, next) => {
         }
 
         const applications = user.userJobs.applications;
-        res.status(200).json({ applications });
+        const populatedApplications = await Promise.all(applications.map(async (application) => {
+            const job = await Job.findById(application.job);
+            return {
+                application,
+                job
+            };
+        }));
+
+        res.status(200).json({ applications: populatedApplications });
     } catch (error) {
         next(error);
     }
