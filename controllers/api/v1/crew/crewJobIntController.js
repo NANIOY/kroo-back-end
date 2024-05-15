@@ -247,6 +247,45 @@ const deleteSavedJob = async (req, res, next) => {
     }
 };
 
+// get offered jobs
+const getOfferedJobs = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate('userJobs.offered_jobs');
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const offeredJobs = user.userJobs.offered_jobs;
+        res.status(200).json({ offeredJobs });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// get offered job by ID
+const getOfferedJobById = async (req, res, next) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate('userJobs.offered_jobs');
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const offeredJob = user.userJobs.offered_jobs.find(job => job._id.toString() === jobId);
+        if (!offeredJob) {
+            throw new CustomError('Offered job not found', 404);
+        }
+
+        res.status(200).json({ offeredJob });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getApplications,
     getJobApplicationById,
@@ -256,4 +295,6 @@ module.exports = {
     getSavedJobById,
     saveJob,
     deleteSavedJob,
+    getOfferedJobs,
+    getOfferedJobById
 };

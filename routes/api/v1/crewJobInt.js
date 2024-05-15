@@ -27,4 +27,10 @@ router.post('/:jobId/save', authenticate, crewJobIntController.saveJob);
 // DELETE saved job
 router.delete('/:jobId/unsave', authenticate, crewJobIntController.deleteSavedJob);
 
+// GET offered jobs
+router.get('/offers', authenticate, crewJobIntController.getOfferedJobs);
+
+// GET offered job by ID
+router.get('/offers/:jobId', authenticate, crewJobIntController.getOfferedJobById);
+
 module.exports = router;
