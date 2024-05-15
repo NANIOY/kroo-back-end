@@ -47,42 +47,57 @@ const offerJob = async (req, res, next) => {
         const jobId = req.params.jobId;
         const { email } = req.body;
         const userId = req.user.userId;
-        const loggedInUser = await User.findById(userId);
-        const businessId = loggedInUser.businessData;
-        const job = await Job.findById(jobId);
-        const business = await Business.findById(businessId);
-        const crewMember = await User.findOne({ email });
 
+        // find logged in user
+        const loggedInUser = await User.findById(userId);
         if (!loggedInUser) {
             throw new CustomError('User not found', 404);
         }
 
+        // find job by id
+        const job = await Job.findById(jobId);
         if (!job) {
             throw new CustomError('Job not found', 404);
         }
 
+        // ensure job belongs to logged in user's business
+        const businessId = loggedInUser.businessData;
+        const business = await Business.findById(businessId);
         if (!business) {
             throw new CustomError('Business not found', 404);
         }
 
+        // find crew member by email
+        const crewMember = await User.findOne({ email });
         if (!crewMember) {
             console.error('Crew Member not found:', email);
             throw new CustomError('Crew member not found', 404);
         }
-        
-        if (crewMember.role !== 'crew') {
+
+        // ensure found user is a crew member
+        if (!crewMember.roles.includes('crew')) {
             console.error('User found, but not a crew member:', email);
             throw new CustomError('Invalid crew member email', 400);
         }
 
+        // ensure crew member isn't already offered job
+        if (crewMember.userJobs.offered_jobs.includes(jobId)) {
+            throw new CustomError('Job already offered to crew member', 400);
+        }
+
+        // offer job to crew member
         job.offeredTo = crewMember._id;
         await job.save();
 
+        // add job to crew member's offered jobs
         crewMember.userJobs.offered_jobs.push(job._id);
         await crewMember.save();
+
+        // add job to business's offered jobs
         business.businessJobs.offeredJobs.push(job._id);
         await business.save();
 
+        // send an email to crew member about job offer
         await sendJobOfferEmail(crewMember.email, crewMember, business);
 
         res.status(200).json({ message: 'Job offered successfully', data: { job } });
