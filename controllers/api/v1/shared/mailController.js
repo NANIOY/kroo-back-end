@@ -167,7 +167,7 @@ const sendJobOfferEmail = async (to, user, business) => {
         const emailContent = `
             Hello ${user.username},<br><br>
         
-            You've received a job offer from ${business.name}. <br><br>
+            You've received a job offer from ${business.businessInfo.companyName}. <br><br>
         
             You can view the job offer at http://kroo.site/tracker.<br><br>
         
