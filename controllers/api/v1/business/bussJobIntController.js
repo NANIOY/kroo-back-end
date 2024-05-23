@@ -129,8 +129,42 @@ const acceptApplication = async (req, res, next) => {
     }
 };
 
+// reject application
+const rejectApplication = async (req, res, next) => {
+    const { applicationId } = req.params;
+
+    try {
+        const application = await JobApplication.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        const user = await User.findById(application.user);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        // ensure user has applications array
+        if (!Array.isArray(user.userJobs.applications)) {
+            user.userJobs.applications = [];
+        }
+
+        // remove application from user's applications
+        user.userJobs.applications = user.userJobs.applications.filter(job => !job.equals(applicationId));
+        await user.save();
+
+        // remove application from database
+        await JobApplication.deleteOne({ _id: applicationId });
+
+        res.status(200).json({ message: 'Application rejected successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllBusinessApplications,
     offerJob,
-    acceptApplication
+    acceptApplication,
+    rejectApplication
 };

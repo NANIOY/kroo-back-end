@@ -12,4 +12,7 @@ router.post('/:jobId/offer', authenticate, bussJobIntController.offerJob);
 // POST accept application
 router.post('/applications/:applicationId/accept', authenticate, bussJobIntController.acceptApplication);
 
+// POST reject application
+router.post('/applications/:applicationId/reject', authenticate, bussJobIntController.rejectApplication);
+
 module.exports = router;
