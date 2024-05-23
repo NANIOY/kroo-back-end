@@ -27,6 +27,7 @@ const getAllBusinessApplications = async (req, res, next) => {
                     jobId: job._id,
                     userId: application.user._id,
                     jobTitle: job.title,
+                    jobFunction: job.jobFunction,
                     user: {
                         username: application.user.username,
                         email: application.user.email
