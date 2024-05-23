@@ -49,7 +49,11 @@ const UserSchema = new Schema({
         offered_jobs: [{
             type: Schema.Types.ObjectId,
             ref: 'Job'
-        }]
+        }],
+        active_jobs: [{
+            type: Schema.Types.ObjectId,
+            ref: 'Job'
+        }],
     },
     resetPasswordToken: {
         type: String

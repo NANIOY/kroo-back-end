@@ -60,7 +60,11 @@ const JobSchema = new Schema({
         type: String,
         required: true,
         unique: true
-    }
+    },
+    activeCrew: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    },
 });
 
 const Job = mongoose.model('Job', JobSchema);

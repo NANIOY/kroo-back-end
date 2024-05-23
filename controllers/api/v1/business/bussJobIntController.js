@@ -112,13 +112,29 @@ const offerJob = async (req, res, next) => {
 
 // accept application
 const acceptApplication = async (req, res, next) => {
-    try {
-        const { applicationId } = req.params;
+    const { applicationId } = req.params;
 
+    try {
         const application = await JobApplication.findById(applicationId);
         if (!application) {
             return res.status(404).json({ message: 'Application not found' });
         }
+
+        const user = await User.findById(application.user);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const job = await Job.findById(application.job);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        user.userJobs.active_jobs = [application.job];
+        await user.save();
+
+        job.activeCrew = application.user;
+        await job.save();
 
         application.status = 'accepted';
         await application.save();
