@@ -178,9 +178,25 @@ const rejectApplication = async (req, res, next) => {
     }
 };
 
+// get all active crew members
+const getActiveCrewMembers = async (req, res, next) => {
+    try {
+        const jobsWithActiveCrew = await Job.find({ activeCrew: { $exists: true, $ne: null } })
+            .populate('activeCrew', 'username email crewData');
+
+        const activeCrewMembers = jobsWithActiveCrew.map(job => job.activeCrew);
+
+        res.status(200).json({ activeCrewMembers });
+    } catch (error) {
+        console.error('Error fetching active crew members:', error);
+        next(error);
+    }
+};
+
 module.exports = {
     getAllBusinessApplications,
     offerJob,
     acceptApplication,
-    rejectApplication
+    rejectApplication,
+    getActiveCrewMembers
 };

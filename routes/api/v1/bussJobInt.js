@@ -15,4 +15,7 @@ router.post('/applications/:applicationId/accept', authenticate, bussJobIntContr
 // POST reject application
 router.post('/applications/:applicationId/reject', authenticate, bussJobIntController.rejectApplication);
 
+// GET all active crew 
+router.get('/:id/activecrew', authenticate, bussJobIntController.getActiveCrewMembers);
+
 module.exports = router;
