@@ -3,6 +3,7 @@ const { User } = require('../../../../models/api/v1/User');
 const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 const { sendJobOfferEmail } = require('../shared/mailController');
+const JobApplication = require('../../../../models/api/v1/JobApplication');
 
 // get all business applications
 const getAllBusinessApplications = async (req, res, next) => {
@@ -24,10 +25,12 @@ const getAllBusinessApplications = async (req, res, next) => {
         for (const job of jobs) {
             for (const application of job.applications) {
                 allApplications.push({
+                    applicationId: application._id,
                     jobId: job._id,
                     userId: application.user._id,
                     jobTitle: job.title,
                     jobFunction: job.jobFunction,
+                    Date: application.date,
                     user: {
                         username: application.user.username,
                         email: application.user.email
@@ -107,7 +110,27 @@ const offerJob = async (req, res, next) => {
     }
 };
 
+// accept application
+const acceptApplication = async (req, res, next) => {
+    try {
+        const { applicationId } = req.params;
+
+        const application = await JobApplication.findById(applicationId);
+        if (!application) {
+            return res.status(404).json({ message: 'Application not found' });
+        }
+
+        application.status = 'accepted';
+        await application.save();
+
+        res.status(200).json({ message: 'Application accepted successfully', application });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllBusinessApplications,
-    offerJob
+    offerJob,
+    acceptApplication
 };

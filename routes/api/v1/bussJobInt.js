@@ -9,4 +9,7 @@ router.get('/:id/applications', authenticate, bussJobIntController.getAllBusines
 // POST offer job
 router.post('/:jobId/offer', authenticate, bussJobIntController.offerJob);
 
+// POST accept application
+router.post('/applications/:applicationId/accept', authenticate, bussJobIntController.acceptApplication);
+
 module.exports = router;
