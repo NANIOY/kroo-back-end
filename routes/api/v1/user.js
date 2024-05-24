@@ -18,4 +18,7 @@ router.patch('/:id', userController.updateUser);
 // DELETE user by ID
 router.delete('/:id', userController.deleteUser);
 
+// GET user data based on userUrl
+router.get('/profile/:userUrl', userController.getUserData);
+
 module.exports = router;

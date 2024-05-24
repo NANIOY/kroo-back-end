@@ -56,10 +56,10 @@ const createUser = async (req, res) => {
         }
 
         // generate unique URL for user
-        let userUrl = `kroo.site/user/${username.toLowerCase().replace(/\s/g, '-')}`;
+        let userUrl = `${username.toLowerCase().replace(/\s/g, '-')}`;
         let counter = 1;
         while (await User.findOne({ userUrl })) {
-            userUrl = `kroo.site/user/${username.toLowerCase().replace(/\s/g, '-')}-${counter}`;
+            userUrl = `${username.toLowerCase().replace(/\s/g, '-')}-${counter}`;
             counter++;
         }
 
@@ -67,7 +67,7 @@ const createUser = async (req, res) => {
         const hashedPassword = await hashPassword(password);
 
         // create new user with hashed password
-        const newUser = new User({ username, email, password: hashedPassword, userUrl, roles: [role]});
+        const newUser = new User({ username, email, password: hashedPassword, userUrl, roles: [role] });
         await newUser.save();
 
         res.status(201).json({ message: 'User created successfully', data: { user: newUser } });
@@ -135,10 +135,25 @@ const deleteUser = async (req, res) => {
     }
 };
 
+// get user data based on userUrl
+const getUserData = async (req, res) => {
+    try {
+        const userUrl = req.params.userUrl;
+        const user = await User.findOne({ userUrl }).populate('crewData');
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+        res.status(200).json(user);
+    } catch (error) {
+        res.status(500).json({ message: 'Server error', error });
+    }
+};
+
 module.exports = {
     getAllUsers,
     getUserById,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    getUserData
 };
