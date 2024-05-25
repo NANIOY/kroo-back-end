@@ -66,7 +66,11 @@ const BusinessSchema = new Schema({
             type: Schema.Types.ObjectId,
             ref: 'Job'
         }],
-    }
+    },
+    active_crew: [{
+        type: Schema.Types.ObjectId,
+        ref: 'User'
+    }],
 });
 
 const Business = mongoose.model('Business', BusinessSchema);

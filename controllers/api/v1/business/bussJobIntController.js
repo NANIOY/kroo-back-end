@@ -139,6 +139,13 @@ const acceptApplication = async (req, res, next) => {
         application.status = 'accepted';
         await application.save();
 
+        const business = await Business.findById(job.businessId);
+        if (!business) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
+        business.active_crew = application.user;
+        await business.save();
+
         res.status(200).json({ message: 'Application accepted successfully', application });
     } catch (error) {
         next(error);
@@ -181,12 +188,30 @@ const rejectApplication = async (req, res, next) => {
 // get all active crew members
 const getActiveCrewMembers = async (req, res, next) => {
     try {
-        const jobsWithActiveCrew = await Job.find({ activeCrew: { $exists: true, $ne: null } })
-            .populate('activeCrew', 'username email crewData');
+        const businessId = req.params.id;
+        const business = await Business.findById(businessId);
+        if (!business) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
 
-        const activeCrewMembers = jobsWithActiveCrew.map(job => job.activeCrew);
+        const activeCrewMembers = business.active_crew;
 
-        res.status(200).json({ activeCrewMembers });
+        let crewMembersWithNames = [];
+        for (const crewMemberId of activeCrewMembers) {
+            const crewMember = await User.findById(crewMemberId);
+            if (crewMember) {
+                const job = await Job.findOne({ activeCrew: crewMemberId });
+                crewMembersWithNames.push({
+                    userId: crewMember._id,
+                    username: crewMember.username,
+                    jobTitle: job ? job.title : null,
+                    jobFunction: job ? job.jobFunction : null,
+                    date: job ? job.date : null
+                });
+            }
+        }
+
+        res.status(200).json({ activeCrewMembers: crewMembersWithNames });
     } catch (error) {
         console.error('Error fetching active crew members:', error);
         next(error);
