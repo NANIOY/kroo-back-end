@@ -5,6 +5,9 @@ const authController = require('../../../controllers/api/v1/shared/authControlle
 // handle user login
 router.post('/login', authController.login);
 
+// handle user logout
+router.post('/logout', authController.logout);
+
 // handle switch role login
 router.post('/switch-role', authController.switchRole);
 

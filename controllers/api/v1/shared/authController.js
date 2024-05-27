@@ -65,6 +65,13 @@ const login = async (req, res, next) => {
     }
 };
 
+// handle log-out
+const logout = async (req, res) => {
+    res.clearCookie('rememberMeToken');
+    res.clearCookie('sessionToken');
+    return res.status(200).json({ message: 'Logout successful' });
+};
+
 const switchRole = async (req, res) => {
     const { token, newRole } = req.body;
     if (!token) return res.status(401).json({ message: "Authentication token is required" });
@@ -134,6 +141,7 @@ const resetPassword = async (req, res, next) => {
 module.exports = {
     hashPassword,
     login,
+    logout,
     switchRole,
-    resetPassword
+    resetPassword,
 };
