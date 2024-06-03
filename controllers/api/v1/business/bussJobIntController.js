@@ -136,6 +136,7 @@ const acceptApplication = async (req, res, next) => {
         }
 
         job.activeCrew.push(application.user);
+        job.status = 'filled';
         await job.save();
 
         if (!user.userJobs.active_jobs.includes(application.job)) {
