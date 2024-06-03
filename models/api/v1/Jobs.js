@@ -65,6 +65,12 @@ const JobSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
     }],
+    status: {
+        type: String,
+        enum: ['open', 'filled', 'complete'],
+        default: 'open',
+        required: true
+    }
 });
 
 const Job = mongoose.model('Job', JobSchema);
