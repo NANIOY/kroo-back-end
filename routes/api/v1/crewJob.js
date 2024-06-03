@@ -9,6 +9,9 @@ router.get('/jobs', crewJobController.getAllJobs);
 // GET jobs assigned to logged in user
 router.get('/crewjobs', authenticate, crewJobController.getCrewJobs);
 
+// GET active jobs for logged in user
+router.get('/activejobs', authenticate, crewJobController.getActiveJobs);
+
 // GET job by ID
 router.get('/jobs/:id', crewJobController.getJobById);
 

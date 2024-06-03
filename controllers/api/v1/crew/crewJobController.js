@@ -37,6 +37,28 @@ const getCrewJobs = async (req, res, next) => {
     }
 };
 
+// fetch all active jobs for logged in user
+const getActiveJobs = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId).populate({
+            path: 'userJobs.active_jobs',
+            model: 'Job'
+        });
+
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const activeJobs = user.userJobs.active_jobs;
+
+        res.status(200).json({ activeJobs });
+    } catch (error) {
+        next(error);
+    }
+};
+
 // get job by id
 const getJobById = async (req, res, next) => {
     try {
@@ -62,5 +84,6 @@ const getJobById = async (req, res, next) => {
 module.exports = {
     getAllJobs,
     getCrewJobs,
+    getActiveJobs,
     getJobById
 };
