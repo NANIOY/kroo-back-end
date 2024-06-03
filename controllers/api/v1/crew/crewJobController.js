@@ -5,7 +5,7 @@ const { CustomError } = require('../../../../middlewares/errorHandler');
 // get all jobs
 const getAllJobs = async (req, res, next) => {
     try {
-        const jobs = await Job.find();
+        const jobs = await Job.find({ status: 'open' });
 
         res.status(200).json({
             success: true,
