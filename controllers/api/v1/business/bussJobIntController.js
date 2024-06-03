@@ -4,6 +4,7 @@ const Business = require('../../../../models/api/v1/Business');
 const { CustomError } = require('../../../../middlewares/errorHandler');
 const { sendJobOfferEmail } = require('../shared/mailController');
 const JobApplication = require('../../../../models/api/v1/JobApplication');
+const CrewData = require('../../../../models/api/v1/Crew');
 
 // get all business applications
 const getAllBusinessApplications = async (req, res, next) => {
@@ -196,22 +197,32 @@ const getActiveCrewMembers = async (req, res, next) => {
 
         const activeCrewMembers = business.active_crew;
 
-        let crewMembersWithNames = [];
+        let crewMembersWithDetails = [];
         for (const crewMemberId of activeCrewMembers) {
             const crewMember = await User.findById(crewMemberId);
             if (crewMember) {
                 const job = await Job.findOne({ activeCrew: crewMemberId });
-                crewMembersWithNames.push({
+                let profileImage = null;
+                
+                if (crewMember.crewData) {
+                    const crewData = await CrewData.findById(crewMember.crewData);
+                    if (crewData && crewData.basicInfo) {
+                        profileImage = crewData.basicInfo.profileImage;
+                    }
+                }
+
+                crewMembersWithDetails.push({
                     userId: crewMember._id,
                     username: crewMember.username,
                     jobTitle: job ? job.title : null,
                     jobFunction: job ? job.jobFunction : null,
-                    date: job ? job.date : null
+                    date: job ? job.date : null,
+                    profileImage: profileImage
                 });
             }
         }
 
-        res.status(200).json({ activeCrewMembers: crewMembersWithNames });
+        res.status(200).json({ activeCrewMembers: crewMembersWithDetails });
     } catch (error) {
         console.error('Error fetching active crew members:', error);
         next(error);
