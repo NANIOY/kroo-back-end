@@ -160,6 +160,8 @@ const acceptApplication = async (req, res, next) => {
         if (!user.userJobs.active_jobs.includes(application.job)) {
             user.userJobs.active_jobs.push(application.job);
         }
+
+        user.userJobs.applications = user.userJobs.applications.filter(app => !app.equals(application._id));
         await user.save();
 
         application.status = 'accepted';
