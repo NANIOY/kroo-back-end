@@ -137,6 +137,24 @@ const acceptApplication = async (req, res, next) => {
 
         job.activeCrew.push(application.user);
         job.status = 'filled';
+
+        const allApplications = await JobApplication.find({ job: job._id });
+
+        for (const otherApplication of allApplications) {
+            if (otherApplication._id.toString() !== applicationId) {
+                otherApplication.status = 'rejected';
+                await otherApplication.save();
+
+                const otherUser = await User.findById(otherApplication.user);
+                if (otherUser) {
+                    otherUser.userJobs.applications = otherUser.userJobs.applications.filter(app => !app.equals(otherApplication._id));
+                    await otherUser.save();
+                }
+            }
+
+            job.applications = job.applications.filter(app => !app.equals(otherApplication._id));
+        }
+
         await job.save();
 
         if (!user.userJobs.active_jobs.includes(application.job)) {
@@ -154,12 +172,6 @@ const acceptApplication = async (req, res, next) => {
 
         business.active_crew.push(application.user);
         await business.save();
-
-        job.applications = job.applications.filter(app => !app.equals(applicationId));
-        await job.save();
-
-        user.userJobs.applications = user.userJobs.applications.filter(app => !app.equals(applicationId));
-        await user.save();
 
         res.status(200).json({ message: 'Application accepted successfully', application });
     } catch (error) {
