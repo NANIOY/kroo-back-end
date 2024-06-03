@@ -212,12 +212,14 @@ const getActiveCrewMembers = async (req, res, next) => {
         const activeCrewMembers = business.active_crew;
 
         let crewMembersWithDetails = [];
+        let uniqueUserJobPairs = new Set();
+
         for (const crewMemberId of activeCrewMembers) {
             const crewMember = await User.findById(crewMemberId);
             if (crewMember) {
-                const job = await Job.findOne({ activeCrew: crewMemberId });
-                let profileImage = null;
+                const jobs = await Job.find({ activeCrew: crewMemberId });
 
+                let profileImage = null;
                 if (crewMember.crewData) {
                     const crewData = await CrewData.findById(crewMember.crewData);
                     if (crewData && crewData.basicInfo) {
@@ -225,14 +227,21 @@ const getActiveCrewMembers = async (req, res, next) => {
                     }
                 }
 
-                crewMembersWithDetails.push({
-                    userId: crewMember._id,
-                    username: crewMember.username,
-                    jobTitle: job ? job.title : null,
-                    jobFunction: job ? job.jobFunction : null,
-                    date: job ? job.date : null,
-                    profileImage: profileImage
-                });
+                for (const job of jobs) {
+                    const userJobPair = `${crewMember._id}-${job._id}`;
+                    if (!uniqueUserJobPairs.has(userJobPair)) {
+                        uniqueUserJobPairs.add(userJobPair);
+                        crewMembersWithDetails.push({
+                            userId: crewMember._id,
+                            username: crewMember.username,
+                            jobId: job._id,
+                            jobTitle: job.title,
+                            jobFunction: job.jobFunction,
+                            date: job.date,
+                            profileImage: profileImage
+                        });
+                    }
+                }
             }
         }
 
