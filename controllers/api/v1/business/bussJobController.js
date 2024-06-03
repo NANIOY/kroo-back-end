@@ -13,8 +13,8 @@ const getAllBusinessJobs = async (req, res, next) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-        const linkedJobs = await Job.find({ _id: { $in: business.businessJobs.linkedJobs } });
-        const offeredJobs = await Job.find({ _id: { $in: business.businessJobs.offeredJobs } });
+        const linkedJobs = await Job.find({ _id: { $in: business.businessJobs.linkedJobs }, status: 'open' });
+        const offeredJobs = await Job.find({ _id: { $in: business.businessJobs.offeredJobs }, status: 'open' });
 
         res.status(200).json({ linkedJobs, offeredJobs });
     } catch (error) {
