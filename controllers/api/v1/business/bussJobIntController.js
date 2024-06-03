@@ -131,11 +131,15 @@ const acceptApplication = async (req, res, next) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
-        user.userJobs.active_jobs = [application.job];
-        await user.save();
-
-        job.activeCrew = application.user;
+        if (!job.activeCrew.includes(application.user)) {
+            job.activeCrew.push(application.user);
+        }
         await job.save();
+
+        if (!user.userJobs.active_jobs.includes(application.job)) {
+            user.userJobs.active_jobs.push(application.job);
+        }
+        await user.save();
 
         application.status = 'accepted';
         await application.save();
@@ -144,7 +148,10 @@ const acceptApplication = async (req, res, next) => {
         if (!business) {
             return res.status(404).json({ message: 'Business not found' });
         }
-        business.active_crew = application.user;
+
+        if (!business.active_crew.includes(application.user)) {
+            business.active_crew.push(application.user);
+        }
         await business.save();
 
         res.status(200).json({ message: 'Application accepted successfully', application });
@@ -203,7 +210,7 @@ const getActiveCrewMembers = async (req, res, next) => {
             if (crewMember) {
                 const job = await Job.findOne({ activeCrew: crewMemberId });
                 let profileImage = null;
-                
+
                 if (crewMember.crewData) {
                     const crewData = await CrewData.findById(crewMember.crewData);
                     if (crewData && crewData.basicInfo) {

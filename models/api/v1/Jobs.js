@@ -61,10 +61,10 @@ const JobSchema = new Schema({
         required: true,
         unique: true
     },
-    activeCrew: {
+    activeCrew: [{
         type: Schema.Types.ObjectId,
         ref: 'User'
-    },
+    }],
 });
 
 const Job = mongoose.model('Job', JobSchema);
