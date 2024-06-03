@@ -131,9 +131,11 @@ const acceptApplication = async (req, res, next) => {
             return res.status(404).json({ message: 'Job not found' });
         }
 
-        if (!job.activeCrew.includes(application.user)) {
-            job.activeCrew.push(application.user);
+        if (job.activeCrew.includes(application.user)) {
+            return res.status(400).json({ message: 'User is already active for this job' });
         }
+
+        job.activeCrew.push(application.user);
         await job.save();
 
         if (!user.userJobs.active_jobs.includes(application.job)) {
@@ -149,10 +151,14 @@ const acceptApplication = async (req, res, next) => {
             return res.status(404).json({ message: 'Business not found' });
         }
 
-        if (!business.active_crew.includes(application.user)) {
-            business.active_crew.push(application.user);
-        }
+        business.active_crew.push(application.user);
         await business.save();
+
+        job.applications = job.applications.filter(app => !app.equals(applicationId));
+        await job.save();
+
+        user.userJobs.applications = user.userJobs.applications.filter(app => !app.equals(applicationId));
+        await user.save();
 
         res.status(200).json({ message: 'Application accepted successfully', application });
     } catch (error) {
