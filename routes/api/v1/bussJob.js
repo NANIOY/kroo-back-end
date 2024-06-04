@@ -6,6 +6,9 @@ const authenticate = require('../../../middlewares/authenticate');
 // GET all business jobs
 router.get('/:id', authenticate, bussJobController.getAllBusinessJobs);
 
+// GET job by ID
+router.get('/:id/:jobId', authenticate, bussJobController.getJobById);
+
 // POST new job
 router.post('/', bussJobController.createJob);
 
