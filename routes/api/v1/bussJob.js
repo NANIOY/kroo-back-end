@@ -10,13 +10,13 @@ router.get('/:id', authenticate, bussJobController.getAllBusinessJobs);
 router.get('/:id/:jobId', authenticate, bussJobController.getJobById);
 
 // POST new job
-router.post('/', bussJobController.createJob);
+router.post('/', authenticate, bussJobController.createJob);
 
 // PUT & PATCH job by ID
-router.put('/:id', bussJobController.updateJob);
-router.patch('/:id', bussJobController.updateJob);
+router.put('/:id', authenticate, bussJobController.updateJob);
+router.patch('/:id', authenticate, bussJobController.updateJob);
 
 // DELETE job by ID
-router.delete('/:id', bussJobController.deleteJob);
+router.delete('/:id', authenticate, bussJobController.deleteJob);
 
 module.exports = router;
