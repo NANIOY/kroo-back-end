@@ -51,7 +51,7 @@ const createJob = async (req, res, next) => {
             time,
             skills,
             jobFunction,
-            location,
+            location = {},
             production_type,
             union_status,
             attachments,
@@ -67,16 +67,20 @@ const createJob = async (req, res, next) => {
             throw new Error('Business not found.', 404);
         }
 
-        // determine country based on city if not provided
         if (!location.country && location.city) {
-            const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&city=${encodeURIComponent(location.city)}&addressdetails=1`;
-            const response = await axios.get(apiUrl, {
-                headers: { 'Accept-Language': 'en' }
-            });
-            if (response.data && response.data.length > 0) {
-                location.country = response.data[0].address.country;
-            } else {
-                throw new Error('Unable to fetch country for the provided city.');
+            try {
+                const apiUrl = `https://nominatim.openstreetmap.org/search?format=json&city=${encodeURIComponent(location.city)}&addressdetails=1`;
+                const response = await axios.get(apiUrl, {
+                    headers: { 'Accept-Language': 'en' }
+                });
+                if (response.data && response.data.length > 0) {
+                    location.country = response.data[0].address.country;
+                } else {
+                    throw new Error('Unable to fetch country for the provided city.');
+                }
+            } catch (error) {
+                console.error('Error fetching country:', error.message);
+                return res.status(500).json({ error: 'Internal Server Error' });
             }
         }
 
@@ -90,9 +94,9 @@ const createJob = async (req, res, next) => {
             skills,
             jobFunction,
             location: {
-                city: location.city,
-                country: location.country,
-                address: location.address
+                city: location.city || '',
+                country: location.country || '',
+                address: location.address || ''
             },
             production_type,
             union_status,
