@@ -28,7 +28,7 @@ const getAuthUrl = (req, res) => {
         state: state
     });
 
-    res.json({ authUrl: url });
+    res.redirect(url);
 };
 
 // GET tokens from Google Calendar API access code and set credentials for OAuth2 client
@@ -75,11 +75,51 @@ const getTokens = async (req, res) => {
     }
 };
 
+// SET credentials for OAuth2 client
+const setCredentials = async (userId) => {
+    const user = await User.findById(userId).populate('crewData');
+    console.log('Fetched user in setCredentials:', user);
+    if (!user) {
+        throw new Error('User not found.');
+    }
+
+    if (!user.crewData) {
+        throw new Error('No crewData linked to user.');
+    }
+
+    const { googleCalendar } = user.crewData;
+    if (!googleCalendar) {
+        throw new Error('No calendar link found for user.');
+    }
+
+    const { accessToken, refreshToken, expiryDate } = googleCalendar;
+
+    oauth2Client.setCredentials({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+        expiry_date: new Date(expiryDate).getTime()
+    });
+
+    // Automatically refresh the token if it has expired
+    if (new Date() >= new Date(expiryDate)) {
+        const newTokens = await oauth2Client.refreshAccessToken();
+        const newAccessToken = newTokens.credentials.access_token;
+        const newExpiryDate = newTokens.credentials.expiry_date;
+
+        user.crewData.googleCalendar.accessToken = newAccessToken;
+        user.crewData.googleCalendar.expiryDate = new Date(newExpiryDate);
+        await user.crewData.save();
+    }
+};
+
 // POST schedule event to Google Calendar API and save event to database
 const scheduleEvent = async (req, res) => {
-    const { summary, description, startDateTime, endDateTime, timeZone } = req.body;
+    const { summary, description, startDateTime, endDateTime, timeZone, userId } = req.body;
 
     try {
+        console.log('Received scheduleEvent request with userId:', userId);
+        await setCredentials(userId);
+
         const newEvent = new Event({
             summary,
             description,
@@ -102,6 +142,7 @@ const scheduleEvent = async (req, res) => {
 
         res.json(result.data);
     } catch (error) {
+        console.error('Error scheduling event:', error);
         res.status(500).json({ error: error.message });
     }
 };
@@ -111,16 +152,7 @@ const listEvents = async (req, res) => {
     const userId = req.query.userId;
 
     try {
-        const user = await User.findById(userId).populate('crewData');
-        if (!user || !user.crewData || !user.crewData.googleCalendar) {
-            return res.status(404).send({ message: 'No calendar link found for user.' });
-        }
-
-        oauth2Client.setCredentials({
-            access_token: user.crewData.googleCalendar.accessToken,
-            refresh_token: user.crewData.googleCalendar.refreshToken,
-            expiry_date: new Date(user.crewData.googleCalendar.expiryDate).getTime()
-        });
+        await setCredentials(userId);
 
         const timeMinConfig = new Date('2000-01-01').toISOString();
 
