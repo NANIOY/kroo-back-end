@@ -6,23 +6,27 @@ const eventSchema = new Schema({
         type: String,
         required: true
     },
-    description: { 
-        type: String, 
-        required: true 
+    description: {
+        type: String,
+        required: true
     },
-    startDateTime: { 
-        type: Date, 
-        required: true 
+    startDateTime: {
+        type: Date,
+        required: true
     },
-    endDateTime: { 
-        type: Date, 
-        required: true 
+    endDateTime: {
+        type: Date,
+        required: true
     },
-    timeZone: { 
-        type: String, 
-        required: true 
+    timeZone: {
+        type: String,
+        required: true
     },
     location: String,
+    type: {
+        type: String,
+        enum: ['job', 'personal'],
+    },
 });
 
 const Event = mongoose.model('Event', eventSchema);

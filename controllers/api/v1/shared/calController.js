@@ -114,7 +114,7 @@ const setCredentials = async (userId) => {
 
 // POST schedule event to Google Calendar API and save event to database
 const scheduleEvent = async (req, res) => {
-    const { summary, description, startDateTime, endDateTime, timeZone, userId } = req.body;
+    const { summary, description, startDateTime, endDateTime, timeZone, userId, type } = req.body;
 
     try {
         console.log('Received scheduleEvent request with userId:', userId);
@@ -125,7 +125,8 @@ const scheduleEvent = async (req, res) => {
             description,
             startDateTime,
             endDateTime,
-            timeZone
+            timeZone,
+            type
         });
 
         await newEvent.save();
