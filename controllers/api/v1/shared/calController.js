@@ -100,7 +100,7 @@ const setCredentials = async (userId) => {
         expiry_date: new Date(expiryDate).getTime()
     });
 
-    // Automatically refresh the token if it has expired
+    // auto refresh access token if expired
     if (new Date() >= new Date(expiryDate)) {
         const newTokens = await oauth2Client.refreshAccessToken();
         const newAccessToken = newTokens.credentials.access_token;
