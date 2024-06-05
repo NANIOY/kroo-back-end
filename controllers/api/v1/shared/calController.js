@@ -28,7 +28,7 @@ const getAuthUrl = (req, res) => {
         state: state
     });
 
-    res.redirect(url);
+    res.json({ authUrl: url });
 };
 
 // GET tokens from Google Calendar API access code and set credentials for OAuth2 client
