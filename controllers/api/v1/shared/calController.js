@@ -78,7 +78,6 @@ const getTokens = async (req, res) => {
 // SET credentials for OAuth2 client
 const setCredentials = async (userId) => {
     const user = await User.findById(userId).populate('crewData');
-    console.log('Fetched user in setCredentials:', user);
     if (!user) {
         throw new Error('User not found.');
     }
@@ -137,7 +136,12 @@ const scheduleEvent = async (req, res) => {
                 summary: newEvent.summary,
                 description: newEvent.description,
                 start: { dateTime: newEvent.startDateTime, timeZone: newEvent.timeZone },
-                end: { dateTime: newEvent.endDateTime, timeZone: newEvent.timeZone }
+                end: { dateTime: newEvent.endDateTime, timeZone: newEvent.timeZone },
+                extendedProperties: {
+                    private: {
+                        type: newEvent.type
+                    }
+                }
             }
         });
 
@@ -164,7 +168,18 @@ const listEvents = async (req, res) => {
             orderBy: 'startTime'
         });
 
-        res.json(result.data.items);
+        const eventsWithTypes = result.data.items.map(event => {
+            let type = 'personal';
+            if (event.extendedProperties && event.extendedProperties.private && event.extendedProperties.private.type) {
+                type = event.extendedProperties.private.type;
+            }
+            return {
+                ...event,
+                type
+            };
+        });
+
+        res.json(eventsWithTypes);
     } catch (error) {
         console.error('Failed to list events:', error);
         res.status(500).send({ message: 'Failed to retrieve events from Google Calendar.', error: error.message });
