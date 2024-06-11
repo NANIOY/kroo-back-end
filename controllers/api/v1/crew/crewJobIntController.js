@@ -103,6 +103,7 @@ const applyJob = async (req, res, next) => {
 
         const user = await User.findById(userId);
         user.userJobs.applications.push(application);
+        user.userJobs.saved_jobs.pull(jobId);
         await user.save();
 
         await sendApplicationMail(job, user, business);
