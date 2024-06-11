@@ -72,7 +72,8 @@ const applyJob = async (req, res, next) => {
         if (!authHeader) {
             throw new CustomError('Authorization header is missing', 401);
         }
-        const token = authHeader;
+
+        const token = authHeader.split(' ')[1];
 
         const decodedToken = jwt.verify(token, process.env.JWT_SECRET);
         if (userId !== decodedToken.userId) {
