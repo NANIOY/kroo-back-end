@@ -48,13 +48,18 @@ const login = async (req, res, next) => {
                 process.env.JWT_SECRET,
                 { expiresIn: '365d' }
             );
+            res.cookie('rememberMeToken', rememberMeToken, {
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'Strict',
+                maxAge: 365 * 24 * 60 * 60 * 1000 // 1 year
+            });
         }
 
         res.status(200).json({
             message: 'Login successful',
             data: {
                 sessionToken,
-                rememberMeToken,
                 userId: user._id,
                 roles: user.roles,
                 activeRole: activeRole

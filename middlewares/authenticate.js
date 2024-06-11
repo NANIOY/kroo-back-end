@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 
 // authenticate middleware
 const authenticate = (req, res, next) => {
-    const sessionToken = req.headers.authorization; // get the token from the authorization header
+    const sessionToken = req.headers.authorization && req.headers.authorization.split(' ')[1]; // get the token from the authorization header
     const rememberMeToken = req.cookies.rememberMeToken; // get the token from the cookie
 
     // check if session token is missing and rememberMe token is present
