@@ -33,4 +33,7 @@ router.get('/offers', authenticate, crewJobIntController.getOfferedJobs);
 // GET offered job by ID
 router.get('/offers/:jobId', authenticate, crewJobIntController.getOfferedJobById);
 
+// POST accept job offer
+router.post('/offers/:jobId/accept', authenticate, crewJobIntController.acceptOffer);
+
 module.exports = router;
