@@ -8,6 +8,7 @@ const mailRouter = require('./routes/api/v1/mail');
 const authRouter = require('./routes/api/v1/auth');
 const fileRouter = require('./routes/api/v1/file');
 const calRouter = require('./routes/api/v1/calendar');
+const geoRouter = require('./routes/api/v1/geo');
 
 // crew routes
 const crewRouter = require('./routes/api/v1/crew');
@@ -26,6 +27,7 @@ router.use('/api/v1/mail', mailRouter);
 router.use('/api/v1/auth', authRouter);
 router.use('/api/v1/file', fileRouter);
 router.use('/api/v1/calendar', calRouter);
+router.use('/api/v1/geo', geoRouter);
 
 // crew routes
 router.use('/api/v1/crew', crewRouter);
