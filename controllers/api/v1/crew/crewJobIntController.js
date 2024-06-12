@@ -286,6 +286,18 @@ const getOfferedJobById = async (req, res, next) => {
     } catch (error) {
         next(error);
     }
+    // accept job offer
+const acceptOffer = async (req, res, next) => {
+    try {
+        // Implementation logic for accepting job offer goes here
+
+        res.status(200).json({ message: 'Job offer accepted successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
 };
 
 module.exports = {
@@ -298,5 +310,6 @@ module.exports = {
     saveJob,
     deleteSavedJob,
     getOfferedJobs,
-    getOfferedJobById
+    getOfferedJobById,
+    acceptOffer,
 };
