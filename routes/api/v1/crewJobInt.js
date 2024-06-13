@@ -37,6 +37,6 @@ router.get('/offers/:jobId', authenticate, crewJobIntController.getOfferedJobByI
 router.post('/offers/:jobId/accept', authenticate, crewJobIntController.acceptOffer);
 
 // POST reject job offer
-router.post('/offers/:jobId/reject', authenticate, crewJobIntController.declineOffer);
+router.post('/offers/:jobId/cancel', authenticate, crewJobIntController.declineOffer);
 
 module.exports = router;
