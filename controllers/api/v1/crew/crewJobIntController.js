@@ -288,6 +288,84 @@ const getOfferedJobById = async (req, res, next) => {
     }
 };
 
+// accept job offer
+const acceptOffer = async (req, res, next) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        // find job in offered jobs
+        const offeredJobIndex = user.userJobs.offered_jobs.findIndex(job => job._id.toString() === jobId);
+        if (offeredJobIndex === -1) {
+            throw new CustomError('Offered job not found', 404);
+        }
+
+        const offeredJob = user.userJobs.offered_jobs[offeredJobIndex];
+
+        // remove job from offered jobs
+        user.userJobs.offered_jobs.splice(offeredJobIndex, 1);
+
+        // add job to active jobs
+        user.userJobs.active_jobs.push(jobId);
+
+        await Promise.all([user.save(), Job.findByIdAndUpdate(jobId, { $push: { activeCrew: userId } })]);
+
+        // remove job from offeredJobs in businessJobs in business object
+        const business = await Business.findOne({ 'businessJobs.offeredJobs': jobId });
+        if (business) {
+            const offeredJobsIndex = business.businessJobs.offeredJobs.findIndex(job => job.toString() === jobId);
+            if (offeredJobsIndex !== -1) {
+                business.businessJobs.offeredJobs.splice(offeredJobsIndex, 1);
+                await business.save();
+            }
+        }
+
+        res.status(200).json({ message: 'Job offer accepted successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
+
+// decline job offer
+const declineOffer = async (req, res, next) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const offeredJobIndex = user.userJobs.offered_jobs.findIndex(job => job._id.toString() === jobId);
+        if (offeredJobIndex === -1) {
+            throw new CustomError('Offered job not found', 404);
+        }
+
+        user.userJobs.offered_jobs.splice(offeredJobIndex, 1);
+        await user.save();
+
+        const business = await Business.findOne({ 'businessJobs.offeredJobs': jobId });
+        if (business) {
+            const offeredJobIndexInBusiness = business.businessJobs.offeredJobs.findIndex(job => job._id.toString() === jobId);
+            if (offeredJobIndexInBusiness !== -1) {
+                business.businessJobs.offeredJobs.splice(offeredJobIndexInBusiness, 1);
+                await business.save();
+            }
+        }
+
+        res.status(200).json({ message: 'Job offer declined successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getApplications,
     getJobApplicationById,
@@ -298,5 +376,7 @@ module.exports = {
     saveJob,
     deleteSavedJob,
     getOfferedJobs,
-    getOfferedJobById
+    getOfferedJobById,
+    acceptOffer,
+    declineOffer
 };
