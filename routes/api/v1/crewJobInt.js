@@ -39,7 +39,7 @@ router.post('/offers/:jobId/accept', authenticate, crewJobIntController.acceptOf
 // POST reject job offer
 router.post('/offers/:jobId/cancel', authenticate, crewJobIntController.declineOffer);
 
-// DELETE ongoing job
-router.delete('/ongoing/:jobId/cancel', authenticate, crewJobIntController.cancelOngoingJob);
+// POST cancel ongoing job
+router.post('/ongoing/:jobId/cancel', authenticate, crewJobIntController.cancelOngoingJob);
 
 module.exports = router;
