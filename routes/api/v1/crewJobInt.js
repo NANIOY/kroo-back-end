@@ -13,7 +13,7 @@ router.get('/applications/:applicationId', authenticate, crewJobIntController.ge
 router.post('/:jobId/apply', authenticate, crewJobIntController.applyJob);
 
 // DELETE delete job application
-router.delete('/:applicationId', authenticate, crewJobIntController.deleteJobApplication);
+router.delete('/applications/:applicationId', authenticate, crewJobIntController.deleteJobApplication);
 
 // GET saved jobs
 router.get('/saved', authenticate, crewJobIntController.getSavedJobs);
@@ -38,5 +38,8 @@ router.post('/offers/:jobId/accept', authenticate, crewJobIntController.acceptOf
 
 // POST reject job offer
 router.post('/offers/:jobId/cancel', authenticate, crewJobIntController.declineOffer);
+
+// DELETE ongoing job
+router.delete('/ongoing/:jobId/cancel', authenticate, crewJobIntController.cancelOngoingJob);
 
 module.exports = router;

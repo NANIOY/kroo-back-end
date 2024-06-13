@@ -366,6 +366,35 @@ const declineOffer = async (req, res, next) => {
     }
 };
 
+// cancel ongoing job
+const cancelOngoingJob = async (req, res, next) => {
+    try {
+        const { jobId } = req.params;
+        const userId = req.user.userId;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const activeJobIndex = user.userJobs.active_jobs.findIndex(job => job._id.toString() === jobId);
+        if (activeJobIndex === -1) {
+            throw new CustomError('Active job not found', 404);
+        }
+
+        user.userJobs.active_jobs.splice(activeJobIndex, 1);
+        await user.save();
+
+        const job = await Job.findById(jobId);
+        job.activeCrew.pull(userId);
+        await job.save();
+
+        res.status(200).json({ message: 'Ongoing job canceled successfully' });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getApplications,
     getJobApplicationById,
@@ -378,5 +407,6 @@ module.exports = {
     getOfferedJobs,
     getOfferedJobById,
     acceptOffer,
-    declineOffer
+    declineOffer,
+    cancelOngoingJob,
 };
