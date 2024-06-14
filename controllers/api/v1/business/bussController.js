@@ -101,7 +101,7 @@ const createBusiness = async (req, res, next) => {
         await newBusiness.save();
         user.businessData = newBusiness._id;
         await user.save();
-        await sendEmailToEmployees(req.body.invitedEmployees, newBusiness);
+        // await sendEmailToEmployees(req.body.invitedEmployees, newBusiness);
         res.status(201).json({ message: 'Business created successfully', data: { business: newBusiness } });
     } catch (error) {
         next(error);

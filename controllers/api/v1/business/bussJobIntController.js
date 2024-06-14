@@ -103,7 +103,7 @@ const offerJob = async (req, res, next) => {
         await business.save();
 
         // send an email to crew member about job offer
-        await sendJobOfferEmail(crewMember.email, crewMember, business);
+        // await sendJobOfferEmail(crewMember.email, crewMember, business);
 
         res.status(200).json({ message: 'Job offered successfully', data: { job } });
     } catch (error) {

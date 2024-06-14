@@ -111,7 +111,7 @@ const applyJob = async (req, res, next) => {
         user.userJobs.saved_jobs.pull(jobId);
         await user.save();
 
-        await sendApplicationMail(job, user, business);
+        // await sendApplicationMail(job, user, business);
 
         const populatedJob = await Job.findById(jobId).populate('applications');
 
