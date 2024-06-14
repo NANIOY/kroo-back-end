@@ -266,10 +266,49 @@ const getActiveCrewMembers = async (req, res, next) => {
     }
 };
 
+// remove active crew member from job
+const removeActiveCrewMember = async (req, res, next) => {
+    try {
+        const { userId, jobId } = req.params;
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const job = await Job.findById(jobId);
+        if (!job) {
+            return res.status(404).json({ message: 'Job not found' });
+        }
+
+        job.activeCrew = job.activeCrew.filter(crew => !crew.equals(userId));
+        await job.save();
+
+        user.userJobs.active_jobs = user.userJobs.active_jobs.filter(activeJob => !activeJob.equals(jobId));
+        await user.save();
+
+        const business = await Business.findById(job.businessId);
+        if (!business) {
+            return res.status(404).json({ message: 'Business not found' });
+        }
+
+        const index = business.active_crew.indexOf(userId);
+        if (index !== -1) {
+            business.active_crew.splice(index, 1);
+        }
+        await business.save();
+
+        res.status(200).json({ message: 'Crew member removed from job' });
+    } catch (error) {
+        next(error);
+    }
+};
+
 module.exports = {
     getAllBusinessApplications,
     offerJob,
     acceptApplication,
     rejectApplication,
-    getActiveCrewMembers
+    getActiveCrewMembers,
+    removeActiveCrewMember
 };

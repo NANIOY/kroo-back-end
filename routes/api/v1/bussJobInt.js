@@ -18,4 +18,7 @@ router.post('/applications/:applicationId/reject', authenticate, bussJobIntContr
 // GET all active crew 
 router.get('/:id/activecrew', authenticate, bussJobIntController.getActiveCrewMembers);
 
+// DELETE active crew member from job
+router.delete('/:jobId/activecrew/:userId', authenticate, bussJobIntController.removeActiveCrewMember);
+
 module.exports = router;
