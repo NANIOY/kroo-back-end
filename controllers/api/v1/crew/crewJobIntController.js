@@ -80,8 +80,14 @@ const applyJob = async (req, res, next) => {
             throw new CustomError('Unauthorized access', 401);
         }
 
-        const applicationExists = await JobApplication.findOne({ job: jobId, user: userId });
-        if (applicationExists) {
+        const user = await User.findById(userId).populate('userJobs.applications');
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+
+        const applications = user.userJobs.applications;
+        const isJobAlreadyApplied = applications.some(application => application.job.toString() === jobId);
+        if (isJobAlreadyApplied) {
             throw new CustomError('You have already applied for this job', 400);
         }
 
@@ -101,7 +107,6 @@ const applyJob = async (req, res, next) => {
         job.applications.push(application);
         await job.save();
 
-        const user = await User.findById(userId);
         user.userJobs.applications.push(application);
         user.userJobs.saved_jobs.pull(jobId);
         await user.save();
