@@ -298,6 +298,9 @@ const removeActiveCrewMember = async (req, res, next) => {
         }
         await business.save();
 
+        job.status = 'open';
+        await job.save();
+
         res.status(200).json({ message: 'Crew member removed from job' });
     } catch (error) {
         next(error);
