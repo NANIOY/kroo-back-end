@@ -25,7 +25,8 @@ const CrewDataSchema = new Schema({
             type: {
                 type: String,
                 enum: ['Short Film', 'Feature Film', 'Documentary', 'Music Video', 'Commercial', 'Animation', 'Web Series', 'TV Show', 'Corporate Video', 'Experimental', 'Photography', 'Other']
-            }
+            },
+            url: String
         }],
         educationTraining: [{
             title: String,

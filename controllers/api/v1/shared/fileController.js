@@ -89,7 +89,7 @@ const uploadImage = async (req, res, next) => {
 
 const uploadFile = async (req, res, next) => {
     try {
-        const { userId } = req.body;
+        const { userId, portfolioTitle, portfolioType } = req.body;
 
         if (!userId) {
             throw new Error('User ID is required');
@@ -101,44 +101,109 @@ const uploadFile = async (req, res, next) => {
             throw new Error('User not found');
         }
 
-        // continue with the upload process
-        if (req.file.mimetype !== 'application/pdf') {
-            throw new Error('Only PDF files are allowed');
+        if (!req.file) {
+            throw new Error('No file provided');
+        }
+
+        // validate file type
+        const validMimeTypes = ['image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml', 'video/mp4'];
+        if (!validMimeTypes.includes(req.file.mimetype)) {
+            throw new Error('Only PNG, JPEG, WEBP, GIF, SVG, and MP4 files are allowed');
         }
 
         // upload file to Cloudinary
-        const result = await cloudinary.uploader.upload(req.file.path, { folder: 'user-files' });
+        const result = await cloudinary.uploader.upload(req.file.path, { folder: 'portfolio-work' });
 
         // extract URL from Cloudinary response
         const fileUrl = result.secure_url;
 
         // update or create crewData with URL of uploaded file
-        if (user.crewData) {
-            const crewData = await CrewData.findById(user.crewData);
-            if (crewData) {
-                crewData.careerDetails.certificationsLicenses = fileUrl;
-                await crewData.save();
-            }
+        let crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
+        if (crewData) {
+            crewData.careerDetails.portfolioWork.push({ title: portfolioTitle, type: portfolioType, url: fileUrl });
+            await crewData.save();
         } else {
-            const newCrewData = new CrewData({
-                careerDetails: { certificationsLicenses: fileUrl },
+            crewData = new CrewData({
+                careerDetails: { portfolioWork: [{ title: portfolioTitle, type: portfolioType, url: fileUrl }] },
             });
-            await newCrewData.save();
-            user.crewData = newCrewData._id;
+            await crewData.save();
+            user.crewData = crewData._id;
             await user.save();
         }
 
-        // if file is uploaded, return response
-        res.json({ fileUrl });
+        res.json({ message: 'Portfolio work uploaded successfully', fileUrl });
     } catch (error) {
-        // return error if userId is missing, invalid, or user not found
-        // or if file is not uploaded or not of the allowed type
-        console.error('Error uploading file:', error);
+        console.error('Error uploading portfolio work:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
+const uploadPortfolio = async (req, res, next) => {
+    try {
+        const userId = req.user.userId;
+        const { portfolioTitle, portfolioType } = req.body;
+
+        if (!userId) {
+            throw new Error('User ID is required');
+        }
+
+        const user = await User.findById(userId);
+        if (!user) {
+            throw new Error('User not found');
+        }
+
+        if (!req.file) {
+            throw new Error('No file provided');
+        }
+
+        // validate file type
+        const validMimeTypes = [
+            'image/png', 'image/jpeg', 'image/webp', 'image/gif', 'image/svg+xml',
+            'video/mp4', 'video/webm', 'audio/mpeg', 'audio/mp3', 'audio/wav', 'audio/wave', 'audio/ogg'
+        ];
+        if (!validMimeTypes.includes(req.file.mimetype)) {
+            throw new Error('Only PNG, JPEG, WEBP, GIF, SVG, MP4, WEBM, MP3, WAV, WAVE, and OGG files are allowed');
+        }
+
+        // determine resource type based on file type
+        let resourceType = 'auto';
+        if (req.file.mimetype.startsWith('image')) {
+            resourceType = 'image';
+        } else if (req.file.mimetype.startsWith('video')) {
+            resourceType = 'video';
+        } else if (req.file.mimetype.startsWith('audio')) {
+            resourceType = 'video'; // cloudinary treats audio files as videos
+        }
+
+        // upload file to Cloudinary
+        const result = await cloudinary.uploader.upload(req.file.path, { folder: 'portfolio-work', resource_type: resourceType });
+
+        // extract URL from Cloudinary response
+        const fileUrl = result.secure_url;
+
+        // update or create crewData with URL of uploaded file
+        let crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
+        if (crewData) {
+            crewData.careerDetails.portfolioWork.push({ title: portfolioTitle, type: portfolioType, url: fileUrl });
+            await crewData.save();
+        } else {
+            crewData = new CrewData({
+                careerDetails: { portfolioWork: [{ title: portfolioTitle, type: portfolioType, url: fileUrl }] },
+            });
+            await crewData.save();
+            user.crewData = crewData._id;
+            await user.save();
+        }
+
+        res.json({ message: 'Portfolio work uploaded successfully', fileUrl });
+    } catch (error) {
+        console.error('Error uploading portfolio work:', error);
         res.status(500).json({ error: error.message });
     }
 };
 
 module.exports = {
     uploadImage,
-    uploadFile
+    uploadFile,
+    uploadPortfolio
 };
