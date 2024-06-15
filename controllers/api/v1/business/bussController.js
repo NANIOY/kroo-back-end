@@ -50,7 +50,7 @@ const createBusiness = async (req, res, next) => {
     try {
         const userId = req.user.userId;
         const user = await User.findById(userId);
-        
+
         if (!user) {
             throw new CustomError('User not found', 404);
         }
@@ -103,6 +103,38 @@ const createBusiness = async (req, res, next) => {
         await user.save();
         // await sendEmailToEmployees(req.body.invitedEmployees, newBusiness);
         res.status(201).json({ message: 'Business created successfully', data: { business: newBusiness } });
+    } catch (error) {
+        next(error);
+    }
+};
+
+// request to join existing business
+const joinBusiness = async (req, res, next) => {
+    try {
+        if (!req.user || !req.user.userId) {
+            throw new CustomError('User not authenticated', 401);
+        }
+
+        const userId = req.user.userId;
+        const user = await User.findById(userId).populate('businessData');
+        if (!user) {
+            throw new CustomError('User not found', 404);
+        }
+        if (user.businessData) {
+            throw new CustomError('User already has a linked business', 400);
+        }
+
+        const businessId = req.query.businessId;
+        if (!businessId) {
+            throw new CustomError('Business ID is required', 400);
+        }
+        const business = await Business.findById(businessId);
+        if (!business) {
+            throw new CustomError('Business not found', 404);
+        }
+
+        // await sendJoinRequest(business);
+        res.status(200).json({ message: 'Join request sent successfully' });
     } catch (error) {
         next(error);
     }
@@ -176,6 +208,7 @@ module.exports = {
     getAllBusinesses,
     getBusinessById,
     createBusiness,
+    joinBusiness,
     updateBusiness,
     deleteBusiness
 };

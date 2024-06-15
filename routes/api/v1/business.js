@@ -12,6 +12,9 @@ router.get('/:id', bussController.getBusinessById);
 // POST new business
 router.post('/', authenticate, bussController.createBusiness);
 
+// POST join business
+router.post('/join', authenticate, bussController.joinBusiness);
+
 // PUT & PATCH update business by ID
 router.put('/:id', bussController.updateBusiness);
 router.patch('/:id', bussController.updateBusiness);
