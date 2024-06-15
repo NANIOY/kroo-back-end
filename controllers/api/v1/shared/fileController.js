@@ -34,7 +34,7 @@ const uploadImage = async (req, res, next) => {
 
         if (dataType === 'crew') {
             // update the appropriate field in crewData with the URL of the uploaded image
-            const crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
+            let crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
             if (crewData) {
                 if (imageType === 'profile') {
                     crewData.basicInfo.profileImage = imageUrl;
@@ -44,16 +44,16 @@ const uploadImage = async (req, res, next) => {
                 await crewData.save();
             } else {
                 // create new crewData if it doesn't exist
-                const newCrewData = new CrewData({
+                crewData = new CrewData({
                     basicInfo: { [imageType === 'profile' ? 'profileImage' : 'bannerImage']: imageUrl },
                 });
-                await newCrewData.save();
-                user.crewData = newCrewData._id;
+                await crewData.save();
+                user.crewData = crewData._id;
                 await user.save();
             }
         } else if (dataType === 'business') {
             // update the appropriate field in businessData with the URL of the uploaded image
-            const businessData = user.businessData ? await Business.findById(user.businessData) : null;
+            let businessData = user.businessData ? await Business.findById(user.businessData) : null;
             if (businessData) {
                 if (imageType === 'profile') {
                     businessData.businessInfo.logo = imageUrl;
@@ -63,14 +63,14 @@ const uploadImage = async (req, res, next) => {
                 await businessData.save();
             } else {
                 // create new businessData if it doesn't exist
-                const newBusinessData = new Business({
-                    businessInfo: { 
+                businessData = new Business({
+                    businessInfo: {
                         companyName: user.username, // or another suitable default value
-                        [imageType === 'profile' ? 'logo' : 'bannerImage']: imageUrl 
+                        [imageType === 'profile' ? 'logo' : 'bannerImage']: imageUrl,
                     },
                 });
-                await newBusinessData.save();
-                user.businessData = newBusinessData._id;
+                await businessData.save();
+                user.businessData = businessData._id;
                 await user.save();
             }
         } else {
