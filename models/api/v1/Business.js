@@ -26,7 +26,8 @@ const BusinessSchema = new Schema({
         location: String,
         logo: String,
         bannerImage: String,
-        bio: String
+        bio: String,
+        tagline: String,
     },
     connectivity: {
         connectSocials: [String],
