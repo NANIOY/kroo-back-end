@@ -175,6 +175,24 @@ const uploadPortfolio = async (req, res, next) => {
             resourceType = 'video'; // cloudinary treats audio files as videos
         }
 
+        // fetch crewData
+        let crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
+
+        // set portfolio limits based on payment plan
+        const portfolioLimits = {
+            free: 6,
+            silver: 18,
+            gold: 56
+        };
+
+        const currentPlan = crewData ? crewData.paymentPlan : 'free';
+        const portfolioLimit = portfolioLimits[currentPlan];
+
+        // check current portfolio items
+        if (crewData && crewData.careerDetails.portfolioWork.length >= portfolioLimit) {
+            throw new Error(`Portfolio limit reached. Your current plan (${currentPlan}) allows for up to ${portfolioLimit} items.`);
+        }
+
         // upload file to Cloudinary
         const result = await cloudinary.uploader.upload(req.file.path, { folder: 'portfolio-work', resource_type: resourceType });
 
@@ -182,13 +200,13 @@ const uploadPortfolio = async (req, res, next) => {
         const fileUrl = result.secure_url;
 
         // update or create crewData with URL of uploaded file
-        let crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
         if (crewData) {
             crewData.careerDetails.portfolioWork.push({ title: portfolioTitle, type: portfolioType, url: fileUrl });
             await crewData.save();
         } else {
             crewData = new CrewData({
                 careerDetails: { portfolioWork: [{ title: portfolioTitle, type: portfolioType, url: fileUrl }] },
+                paymentPlan: currentPlan // ensure the default plan is set if creating new crewData
             });
             await crewData.save();
             user.crewData = crewData._id;
