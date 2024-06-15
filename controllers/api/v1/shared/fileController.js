@@ -1,5 +1,5 @@
 const cloudinary = require('cloudinary').v2;
-const { User, CrewData } = require('../../../../models/api/v1/User');
+const { User, CrewData, Business } = require('../../../../models/api/v1/User');
 
 cloudinary.config({
     cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -9,10 +9,10 @@ cloudinary.config({
 
 const uploadImage = async (req, res, next) => {
     try {
-        const { userId, imageType } = req.body;
+        const { userId, imageType, dataType } = req.body;
 
-        if (!userId || !imageType) {
-            throw new Error('User ID and Image Type are required');
+        if (!userId || !imageType || !dataType) {
+            throw new Error('User ID, Image Type, and Data Type are required');
         }
 
         // check if user exists
@@ -21,7 +21,7 @@ const uploadImage = async (req, res, next) => {
             throw new Error('User not found');
         }
 
-        // continue with upload process
+        // validate image type
         if (!['image/png', 'image/jpeg', 'image/webp'].includes(req.file.mimetype)) {
             throw new Error('Only PNG, JPEG, and WEBP files are allowed');
         }
@@ -32,23 +32,49 @@ const uploadImage = async (req, res, next) => {
         // extract URL from Cloudinary response
         const imageUrl = result.secure_url;
 
-        // update the appropriate field in crewData with the URL of the uploaded image
-        const crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
-        if (crewData) {
-            if (imageType === 'profile') {
-                crewData.basicInfo.profileImage = imageUrl;
-            } else if (imageType === 'banner') {
-                crewData.basicInfo.bannerImage = imageUrl;
+        if (dataType === 'crew') {
+            // update the appropriate field in crewData with the URL of the uploaded image
+            const crewData = user.crewData ? await CrewData.findById(user.crewData) : null;
+            if (crewData) {
+                if (imageType === 'profile') {
+                    crewData.basicInfo.profileImage = imageUrl;
+                } else if (imageType === 'banner') {
+                    crewData.basicInfo.bannerImage = imageUrl;
+                }
+                await crewData.save();
+            } else {
+                // create new crewData if it doesn't exist
+                const newCrewData = new CrewData({
+                    basicInfo: { [imageType === 'profile' ? 'profileImage' : 'bannerImage']: imageUrl },
+                });
+                await newCrewData.save();
+                user.crewData = newCrewData._id;
+                await user.save();
             }
-            await crewData.save();
+        } else if (dataType === 'business') {
+            // update the appropriate field in businessData with the URL of the uploaded image
+            const businessData = user.businessData ? await Business.findById(user.businessData) : null;
+            if (businessData) {
+                if (imageType === 'profile') {
+                    businessData.businessInfo.logo = imageUrl;
+                } else if (imageType === 'banner') {
+                    businessData.businessInfo.bannerImage = imageUrl;
+                }
+                await businessData.save();
+            } else {
+                // create new businessData if it doesn't exist
+                const newBusinessData = new Business({
+                    businessInfo: { 
+                        companyName: user.username, // or another suitable default value
+                        [imageType === 'profile' ? 'logo' : 'bannerImage']: imageUrl 
+                    },
+                });
+                await newBusinessData.save();
+                user.businessData = newBusinessData._id;
+                await user.save();
+            }
         } else {
-            // create new crewData if it doesn't exist
-            const newCrewData = new CrewData({
-                basicInfo: { [imageType === 'profile' ? 'profileImage' : 'bannerImage']: imageUrl },
-            });
-            await newCrewData.save();
-            user.crewData = newCrewData._id;
-            await user.save();
+            throw new Error('Invalid data type');
         }
 
         // if file is uploaded, return response
