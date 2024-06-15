@@ -45,6 +45,11 @@ const CrewDataSchema = new Schema({
         expiryDate: Date,
         // email: String,
     },
+    paymentPlan: {
+        type: String,
+        enum: ['free', 'silver', 'gold'],
+        default: 'free'
+    }
 });
 
 const CrewData = mongoose.model('CrewData', CrewDataSchema);

@@ -84,6 +84,7 @@ const createCrewData = async (req, res, next) => {
         crewData.careerDetails = { ...crewData.careerDetails, ...careerDetails };
         crewData.connectivity = { ...crewData.connectivity, ...connectivity };
         crewData.googleCalendar = { ...crewData.googleCalendar, ...googleCalendar };
+        crewData.paymentPlan = 'free';
         await crewData.save();
 
         res.status(201).json({ message: 'Crew data created or updated successfully', data: { crewData: user.crewData } });
