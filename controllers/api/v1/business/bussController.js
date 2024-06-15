@@ -55,10 +55,6 @@ const createBusiness = async (req, res, next) => {
             throw new CustomError('User not found', 404);
         }
 
-        if (user.businessData) {
-            throw new CustomError('User already has a linked business', 400);
-        }
-
         if (!user.roles.includes('business')) {
             user.roles.push('business');
         }
@@ -69,26 +65,14 @@ const createBusiness = async (req, res, next) => {
             throw new CustomError('Company name already exists. Join request sent to the existing business.', 400);
         }
 
-        const numberOfEmployees = req.body.invitedEmployees.length;
-        if (numberOfEmployees > req.body.paymentInfo.numberOfUsers) {
-            throw new CustomError('Number of invited employees exceeds the allowed limit', 400);
-        }
+        // const numberOfEmployees = req.body.invitedEmployees.length;
+        // if (numberOfEmployees > req.body.paymentInfo.numberOfUsers) {
+        //     throw new CustomError('Number of invited employees exceeds the allowed limit', 400);
+        // }
 
         if (!isValidEmail(req.body.businessInfo.companyEmail)) {
             throw new CustomError('Invalid email format', 400);
         }
-
-        // const extraWebsites = req.body.connectivity.extraWebsites || [];
-        // for (const website of extraWebsites) {
-        //     if (!isValidURL(website.url)) {
-        //         throw new CustomError('Invalid URL format', 400);
-        //     }
-        // }
-
-        // const maxPortfolioProjects = 20;
-        // if (req.body.showProjects.portfolioWork.length > maxPortfolioProjects) {
-        //     throw new CustomError(`Maximum allowed number of portfolio projects exceeded (${maxPortfolioProjects})`, 400);
-        // }
 
         if (req.body.connectivity.customUrl) {
             req.body.connectivity.customUrl = `kroo.site/business/${req.body.connectivity.customUrl}`;
@@ -97,12 +81,34 @@ const createBusiness = async (req, res, next) => {
             req.body.connectivity.customUrl = `kroo.site/business/${businessName}`;
         }
 
-        const newBusiness = new Business(req.body);
-        await newBusiness.save();
-        user.businessData = newBusiness._id;
-        await user.save();
-        // await sendEmailToEmployees(req.body.invitedEmployees, newBusiness);
-        res.status(201).json({ message: 'Business created successfully', data: { business: newBusiness } });
+        let business;
+        if (user.businessData) {
+            // update existing business
+            business = await Business.findById(user.businessData);
+            if (!business) {
+                throw new CustomError('Linked business not found', 404);
+            }
+
+            // preserve existing fields and merge with new data
+            const updatedBusinessInfo = {
+                ...business.businessInfo.toObject(),
+                ...req.body.businessInfo
+            };
+
+            business.set({
+                ...req.body,
+                businessInfo: updatedBusinessInfo
+            });
+
+            await business.save();
+            res.status(200).json({ message: 'Business updated successfully', data: { business } });
+        } else {
+            business = new Business(req.body);
+            await business.save();
+            user.businessData = business._id;
+            await user.save();
+            res.status(201).json({ message: 'Business created successfully', data: { business } });
+        }
     } catch (error) {
         next(error);
     }
