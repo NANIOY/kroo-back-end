@@ -240,7 +240,6 @@ const updatePortfolio = async (req, res) => {
         }
 
         const portfolioItem = crewData.careerDetails.portfolioWork.id(new ObjectId(portfolioId));
-
         if (!portfolioItem) {
             console.log('Portfolio item not found in crew data with ID:', portfolioId);
             return res.status(404).json({ message: 'Portfolio item not found' });
@@ -248,6 +247,11 @@ const updatePortfolio = async (req, res) => {
 
         portfolioItem.title = portfolioTitle || portfolioItem.title;
         portfolioItem.type = portfolioType || portfolioItem.type;
+
+        if (req.file) {
+            const result = await cloudinary.uploader.upload(req.file.path, { folder: 'portfolio-work' });
+            portfolioItem.url = result.secure_url;
+        }
 
         await crewData.save();
 
