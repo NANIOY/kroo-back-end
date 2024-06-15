@@ -1,4 +1,5 @@
 const cloudinary = require('cloudinary').v2;
+const { ObjectId } = require('mongoose').Types;
 const { User, CrewData, Business } = require('../../../../models/api/v1/User');
 
 cloudinary.config({
@@ -220,8 +221,46 @@ const uploadPortfolio = async (req, res, next) => {
     }
 };
 
+const updatePortfolio = async (req, res) => {
+    try {
+        const portfolioId = req.params.id;
+        const { portfolioTitle, portfolioType } = req.body;
+        const userId = req.user.userId;
+
+        const user = await User.findById(new ObjectId(userId));
+        if (!user) {
+            console.log('User not found with ID:', userId);
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const crewData = await CrewData.findById(new ObjectId(user.crewData));
+        if (!crewData) {
+            console.log('Crew data not found for user with ID:', userId);
+            return res.status(404).json({ message: 'Crew data not found' });
+        }
+
+        const portfolioItem = crewData.careerDetails.portfolioWork.id(new ObjectId(portfolioId));
+
+        if (!portfolioItem) {
+            console.log('Portfolio item not found in crew data with ID:', portfolioId);
+            return res.status(404).json({ message: 'Portfolio item not found' });
+        }
+
+        portfolioItem.title = portfolioTitle || portfolioItem.title;
+        portfolioItem.type = portfolioType || portfolioItem.type;
+
+        await crewData.save();
+
+        res.json({ message: 'Portfolio item updated successfully', portfolioItem });
+    } catch (error) {
+        console.error('Error updating portfolio item:', error);
+        res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
 module.exports = {
     uploadImage,
     uploadFile,
-    uploadPortfolio
+    uploadPortfolio,
+    updatePortfolio
 };

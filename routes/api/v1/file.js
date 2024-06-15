@@ -14,4 +14,7 @@ router.post('/uploadfile', upload.single('file'), fileController.uploadFile);
 // upload portfolio work
 router.post('/portfolio', authenticate, upload.single('file'), fileController.uploadPortfolio);
 
+// update portfolio work
+router.put('/portfolio/:id', authenticate, upload.single('file'), fileController.updatePortfolio);
+
 module.exports = router;
