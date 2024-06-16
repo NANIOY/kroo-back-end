@@ -80,10 +80,10 @@ const getTokens = async (req, res) => {
         }
         await crewData.save();
 
-        res.redirect(`https://app.kroo.site/#/register/business/step-4?status=success&userId=${userId}`);
+        res.redirect(`https://app.kroo.site/#/register/crew/step-2?status=success&userId=${userId}`);
     } catch (error) {
         console.error('Failed to retrieve tokens:', error);
-        res.redirect(`https://app.kroo.site/#/register/business/step-3?status=error`);
+        res.redirect(`https://app.kroo.site/#/register/crew/step-1?status=error`);
     }
 };
 
