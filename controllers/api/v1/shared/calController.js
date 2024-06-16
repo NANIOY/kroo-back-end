@@ -43,13 +43,14 @@ const getTokens = async (req, res) => {
     try {
         const response = await oauth2Client.getToken(code);
         console.log('OAuth2 Response:', response);
-        
+
         const { tokens } = response;
         oauth2Client.setCredentials(tokens);
 
         console.log('Retrieved Tokens:', tokens);
 
         if (!tokens.refresh_token || !tokens.access_token) {
+            console.error('Missing access or refresh tokens:', tokens);
             throw new Error('Missing access or refresh tokens');
         }
 
