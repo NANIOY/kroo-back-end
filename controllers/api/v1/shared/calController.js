@@ -95,7 +95,10 @@ const setCredentials = async (userId) => {
     }
 
     if (!user.crewData) {
-        throw new Error('No crewData linked to user.');
+        const crewData = new CrewData({ userId: user._id });
+        await crewData.save();
+        user.crewData = crewData._id;
+        await user.save();
     }
 
     const { googleCalendar } = user.crewData;
