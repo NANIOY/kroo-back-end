@@ -71,7 +71,7 @@ const getTokens = async (req, res) => {
         res.redirect(`https://app.kroo.site/#/register/crew/step-2?status=success&userId=${userId}`);
     } catch (error) {
         console.error('Failed to retrieve tokens:', error);
-        res.redirect(`hhttps://app.kroo.site/#/register/crew/step-1?status=error`);
+        res.redirect(`https://app.kroo.site/#/register/crew/step-1?status=error`);
     }
 };
 
