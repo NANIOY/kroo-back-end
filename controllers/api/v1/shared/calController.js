@@ -37,9 +37,17 @@ const getTokens = async (req, res) => {
     const state = JSON.parse(req.query.state);
     const userId = state.userId;
 
+    console.log('Authorization Code:', code);
+    console.log('State:', state);
+
     try {
-        const { tokens } = await oauth2Client.getToken(code);
+        const response = await oauth2Client.getToken(code);
+        console.log('OAuth2 Response:', response);
+        
+        const { tokens } = response;
         oauth2Client.setCredentials(tokens);
+
+        console.log('Retrieved Tokens:', tokens);
 
         if (!tokens.refresh_token || !tokens.access_token) {
             throw new Error('Missing access or refresh tokens');
