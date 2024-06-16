@@ -24,6 +24,7 @@ const getAuthUrl = (req, res) => {
     const state = JSON.stringify({ userId });
     const url = oauth2Client.generateAuthUrl({
         access_type: 'offline',
+        prompt: 'consent',
         scope: scopes,
         state: state
     });
@@ -49,13 +50,6 @@ const getTokens = async (req, res) => {
 
         console.log('Retrieved Tokens:', tokens);
 
-        if (!tokens.refresh_token || !tokens.access_token) {
-            console.error('Missing access or refresh tokens:', tokens);
-            throw new Error('Missing access or refresh tokens');
-        }
-
-        const expiryDate = new Date(tokens.expiry_date);
-
         const user = await User.findById(userId);
         if (!user) {
             console.log(`User not found with ID: ${userId}`);
@@ -70,11 +64,20 @@ const getTokens = async (req, res) => {
             await user.save();
         }
 
-        crewData.googleCalendar = {
-            accessToken: tokens.access_token,
-            refreshToken: tokens.refresh_token,
-            expiryDate: expiryDate
-        };
+        if (tokens.refresh_token) {
+            crewData.googleCalendar = {
+                accessToken: tokens.access_token,
+                refreshToken: tokens.refresh_token,
+                expiryDate: new Date(tokens.expiry_date)
+            };
+        } else {
+            const existingData = crewData.googleCalendar;
+            crewData.googleCalendar = {
+                accessToken: tokens.access_token,
+                refreshToken: existingData ? existingData.refreshToken : null,
+                expiryDate: new Date(tokens.expiry_date)
+            };
+        }
         await crewData.save();
 
         res.redirect(`https://app.kroo.site/#/register/crew/step-2?status=success&userId=${userId}`);
