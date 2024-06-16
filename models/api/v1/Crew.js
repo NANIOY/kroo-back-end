@@ -30,7 +30,9 @@ const CrewDataSchema = new Schema({
         }],
         educationTraining: [{
             title: String,
-            where: String
+            where: String,
+            startYear: Number,
+            endYear: Number
         }],
         certificationsLicenses: [String],
         unionStatus: String
